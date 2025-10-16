@@ -11,8 +11,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * Unless required by applicable law of a F'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -24,7 +23,7 @@ import { LiveConnectConfig, Modality, LiveServerToolCall } from '@google/genai';
 import { AudioStreamer } from '../../lib/audio-streamer';
 import { audioContext } from '../../lib/utils';
 import VolMeterWorket from '../../lib/worklets/vol-meter';
-import { useLogStore, useSettings, useAppEvents } from '@/lib/state';
+import { useLogStore, useSettings, useAppEvents, useMedia } from '@/lib/state';
 
 export type UseLiveApiResults = {
   client: GenAILiveClient;
@@ -44,6 +43,7 @@ export function useLiveApi({
   apiKey: string;
 }): UseLiveApiResults {
   const { model } = useSettings();
+  const { setMic, micWasInterrupted } = useMedia();
   const client = useMemo(() => new GenAILiveClient(apiKey, model), [apiKey, model]);
 
   const audioStreamerRef = useRef<AudioStreamer | null>(null);
@@ -87,6 +87,11 @@ export function useLiveApi({
     };
 
     const onAudio = (data: ArrayBuffer) => {
+      // Re-enable mic if it was interrupted by the system
+      if (micWasInterrupted) {
+        console.log("AI is speaking, re-enabling microphone.");
+        setMic(true, false);
+      }
       if (audioStreamerRef.current) {
         audioStreamerRef.current.addPCM16(new Uint8Array(data));
       }
@@ -160,7 +165,7 @@ export function useLiveApi({
       client.off('audio', onAudio);
       client.off('toolcall', onToolCall);
     };
-  }, [client]);
+  }, [client, micWasInterrupted, setMic]);
 
   const connect = useCallback(async () => {
     if (!config) {

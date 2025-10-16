@@ -8,18 +8,18 @@ import { useLiveAPIContext } from '../../../contexts/LiveAPIContext';
 import { useSettings, useLogStore, useTools, useMedia, useAppEvents } from '@/lib/state';
 import { blobToBase64 } from '@/lib/utils';
 import { useCamera } from '@/hooks/media/useCamera';
-import cn from 'classnames';
 
 export default function StreamingConsole() {
   const { client, connected, setConfig } = useLiveAPIContext();
   const { systemPrompt, voice } = useSettings();
   const { tools } = useTools();
-  const { isCameraOn } = useMedia();
+  const { isCameraOn, setMic } = useMedia();
   const { snapshotTriggered } = useAppEvents();
   const [showSnapshotFlash, setShowSnapshotFlash] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameIntervalRef = useRef<number | null>(null);
+  const interruptionTimerRef = useRef<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
 
   // Hook to manage camera stream
@@ -56,7 +56,6 @@ export default function StreamingConsole() {
 
   // Effect for taking a snapshot
   useEffect(() => {
-    // A snapshot can only be taken if the effect is triggered and the camera is on.
     if (snapshotTriggered > 0 && isCameraOn) {
       if (videoRef.current && canvasRef.current) {
         const videoEl = videoRef.current;
@@ -64,24 +63,32 @@ export default function StreamingConsole() {
         const ctx = canvasEl.getContext('2d');
         if (!ctx) return;
 
-        // Draw the current video frame to the canvas.
-        // The video element is visually mirrored via CSS, but drawImage captures the original, un-mirrored frame.
-        // This is correct for an identification snapshot.
+        // Draw the current video frame to the canvas for the snapshot
         canvasEl.width = videoEl.videoWidth;
         canvasEl.height = videoEl.videoHeight;
         ctx.drawImage(videoEl, 0, 0, videoEl.videoWidth, videoEl.videoHeight);
 
-        // Get the image data. For this demo, we'll just log it to the console.
-        // In a real application, this would be sent to a secure server.
-        const imageDataUrl = canvasEl.toDataURL('image/jpeg', 0.8);
-        console.log('Snapshot taken:', imageDataUrl.substring(0, 80) + '...');
+        // Convert the snapshot to a blob and send it to the AI
+        canvasEl.toBlob(
+          async blob => {
+            if (blob) {
+              const base64Data = await blobToBase64(blob);
+              client.sendRealtimeInput([
+                { data: base64Data, mimeType: 'image/jpeg' },
+              ]);
+              console.log('Snapshot taken and sent to AI.');
+            }
+          },
+          'image/jpeg',
+          0.9, // Higher quality for snapshot
+        );
 
         // Trigger visual flash effect
         setShowSnapshotFlash(true);
         setTimeout(() => setShowSnapshotFlash(false), 300);
       }
     }
-  }, [snapshotTriggered, isCameraOn]);
+  }, [snapshotTriggered, isCameraOn, client]);
 
 
   // Effect for sending video frames
@@ -159,11 +166,27 @@ export default function StreamingConsole() {
       } else {
         addTurn({ role: 'user', text, isFinal });
       }
+
+      // Set/reset the interruption timer whenever the user speaks
+      if (interruptionTimerRef.current) {
+        clearTimeout(interruptionTimerRef.current);
+      }
+      interruptionTimerRef.current = window.setTimeout(() => {
+        console.log("User has been speaking for too long. AI taking turn.");
+        setMic(false, true); // Interrupt the mic
+      }, 30000); // 30 seconds
     };
 
     const handleOutputTranscription = (text: string, isFinal: boolean) => {
       const turns = useLogStore.getState().turns;
       const last = turns[turns.length - 1];
+      
+      // Clear any pending user interruption timer as the agent is now speaking
+      if (interruptionTimerRef.current) {
+        clearTimeout(interruptionTimerRef.current);
+        interruptionTimerRef.current = null;
+      }
+
       if (last && last.role === 'agent' && !last.isFinal) {
         updateLastTurn({ text: last.text + text, isFinal });
       } else {
@@ -176,6 +199,11 @@ export default function StreamingConsole() {
       if (last && !last.isFinal) {
         updateLastTurn({ isFinal: true });
       }
+      // A turn is complete, so clear any pending interruption timer
+      if (interruptionTimerRef.current) {
+        clearTimeout(interruptionTimerRef.current);
+        interruptionTimerRef.current = null;
+      }
     };
 
     client.on('inputTranscription', handleInputTranscription);
@@ -186,8 +214,11 @@ export default function StreamingConsole() {
       client.off('inputTranscription', handleInputTranscription);
       client.off('outputTranscription', handleOutputTranscription);
       client.off('turncomplete', handleTurnComplete);
+      if (interruptionTimerRef.current) {
+        clearTimeout(interruptionTimerRef.current);
+      }
     };
-  }, [client]);
+  }, [client, setMic]);
 
   return (
     <div className="video-call-container">

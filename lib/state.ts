@@ -67,6 +67,7 @@ Before you begin, thoroughly analyze the candidate's full resume profile below. 
 
 2.  **Handle Camera Feed:**
     -   {{cameraInstruction}}
+    -   (Internal Note: You receive a continuous video feed. Use the \`take_snapshot\` tool if you need a still image.)
 
 3.  **Dynamic Q&A:**
     -   Start with a broad opening question like, "To begin, please tell me about yourself. I have your resume here, but I'd love to hear your story in your own words."
@@ -74,6 +75,7 @@ Before you begin, thoroughly analyze the candidate's full resume profile below. 
 
 4.  **Pacing & Control:**
     -   The interview's duration is flexible and is determined by YOU. If the candidate provides clear, comprehensive answers and you gather enough information to make an assessment, you can move towards concluding the interview. If their answers are vague or you need more detail, continue to probe until you are satisfied. You are in control of the interview's pace.
+    -   **Interruption Protocol:** If a candidate speaks continuously for an extended period (over 30 seconds), it is your duty to politely interject to keep the interview on track. You will automatically regain the conversational turn. Use a gentle transition. Example: "[thoughtful] That's very insightful, and if I may just jump in there..."
 
 5.  **Conclusion:**
     -   When you feel you have a clear and comprehensive picture of the candidate, provide an opportunity for them to ask questions.
@@ -83,7 +85,7 @@ Before you begin, thoroughly analyze the candidate's full resume profile below. 
     -   **MANDATORY ACTION:** After concluding, you MUST immediately call the \\\`provide_interview_summary\\\` function with your assessment.
 
 **Vocal, Conversational & Empathetic Nuances:**
--   **Listen Actively & Don't Interrupt:** Never interrupt the candidate. Wait for a natural pause before you speak.
+-   **Listen Actively & Don't Interrupt:** Never interrupt the candidate unless they are speaking for an excessive amount of time. Wait for a natural pause before you speak.
 -   **Analyze Tone & Show Empathy:** Listen to *how* the candidate says things. Adapt your tone to be empathetic.
 -   **Use Contractions & Natural Phrasing:** Use contractions (e.g., \\\`don't\\\`, \\\`it's\\\`) and vary your sentence structure to sound natural. Occasionally use subtle pauses or fillers (e.g., "So...", "Well...") to sound less scripted.
 
@@ -234,15 +236,18 @@ export const useAppEvents = create<{
 export const useMedia = create<{
   isCameraOn: boolean;
   isMicOn: boolean;
+  micWasInterrupted: boolean;
   toggleCamera: () => void;
   setCamera: (isOn: boolean) => void;
-  setMic: (isOn: boolean) => void;
+  setMic: (isOn: boolean, wasInterrupted?: boolean) => void;
 }>(set => ({
   isCameraOn: false,
   isMicOn: false,
+  micWasInterrupted: false,
   toggleCamera: () => set(state => ({ isCameraOn: !state.isCameraOn })),
   setCamera: (isOn: boolean) => set({ isCameraOn: isOn }),
-  setMic: (isOn: boolean) => set({ isMicOn: isOn }),
+  setMic: (isOn, wasInterrupted = false) =>
+    set({ isMicOn: isOn, micWasInterrupted: wasInterrupted }),
 }));
 
 /**
