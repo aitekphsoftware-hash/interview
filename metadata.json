@@ -1,0 +1,8 @@
+{
+  "name": "AI-Powered HR Interview Platform",
+  "description": "An HR solution that manages the interview process. Candidates can use their mobile phone to participate in live, automated interviews with an AI assistant.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
