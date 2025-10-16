@@ -123,8 +123,6 @@ export default function StreamingConsole() {
     };
   }, [client]);
 
-  const lastTwoTurns = turns.slice(-2);
-
   return (
     <div className="video-call-container">
       <div className="self-view-container">
@@ -135,22 +133,6 @@ export default function StreamingConsole() {
           </div>
         )}
       </div>
-
-      {connected && lastTwoTurns.length > 0 && (
-        <div className="transcription-overlay">
-          {lastTwoTurns.map((turn, index) => (
-            <p
-              key={index}
-              className={cn('subtitle', turn.role, {
-                interim: !turn.isFinal,
-              })}
-            >
-              <strong>{turn.role === 'user' ? 'You' : 'Agent'}:</strong>{' '}
-              {renderContent(turn.text)}
-            </p>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
