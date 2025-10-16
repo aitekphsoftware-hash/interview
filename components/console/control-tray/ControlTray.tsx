@@ -12,23 +12,19 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is an "AS IS" BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 import cn from 'classnames';
-import { memo, ReactNode, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { AudioRecorder } from '../../../lib/audio-recorder';
 import { useMedia } from '@/lib/state';
 import { useLiveAPIContext } from '../../../contexts/LiveAPIContext';
 
-export type ControlTrayProps = {
-  children?: ReactNode;
-};
-
-function ControlTray({ children }: ControlTrayProps) {
+function ControlTray() {
   const [audioRecorder] = useState(() => new AudioRecorder());
   const { client, connected, connect, disconnect } = useLiveAPIContext();
   const { isCameraOn, isMicOn, toggleCamera, setCamera, setMic } = useMedia();
@@ -83,30 +79,48 @@ function ControlTray({ children }: ControlTrayProps) {
   };
 
   return (
-    <section className="control-tray">
-      <div className={cn('actions-nav', { connected })}>
+    <>
+      <div className="side-controls-container">
+        <button className="action-button">
+          <span className="material-symbols-outlined">expand_less</span>
+        </button>
         <button
           className="action-button"
           onClick={handleCameraToggle}
           title={isCameraOn ? 'Turn camera off' : 'Turn camera on'}
           disabled={!connected}
         >
-          <span className="material-symbols-outlined filled">
+          <span
+            className={cn('material-symbols-outlined', {
+              'off-icon': !isCameraOn,
+            })}
+          >
             {isCameraOn ? 'videocam' : 'videocam_off'}
           </span>
         </button>
         <button
-          className={cn('action-button mic-button', { active: isMicOn })}
+          className="action-button"
           onClick={handleMicToggle}
           title={isMicOn ? 'Mute microphone' : 'Unmute microphone'}
           disabled={!connected}
         >
-          <span className="material-symbols-outlined filled">
+          <span
+            className={cn('material-symbols-outlined', { 'off-icon': !isMicOn })}
+          >
             {isMicOn ? 'mic' : 'mic_off'}
           </span>
         </button>
+      </div>
+
+      <section className="control-tray">
+        <button className="bottom-action-button">
+          <span className="material-symbols-outlined">ios_share</span>
+        </button>
+        <button className="bottom-action-button">
+          <span className="material-symbols-outlined">flip_camera_ios</span>
+        </button>
         <button
-          className="action-button end-call-button"
+          className="end-call-button"
           onClick={handleConnectToggle}
           title={connected ? 'End call' : 'Start call'}
         >
@@ -114,8 +128,14 @@ function ControlTray({ children }: ControlTrayProps) {
             {connected ? 'call_end' : 'play_arrow'}
           </span>
         </button>
-      </div>
-    </section>
+        <button className="bottom-action-button">
+          <span className="material-symbols-outlined">chat_bubble</span>
+        </button>
+        <button className="bottom-action-button">
+          <span className="material-symbols-outlined">more_vert</span>
+        </button>
+      </section>
+    </>
   );
 }
 

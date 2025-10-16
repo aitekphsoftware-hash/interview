@@ -1,0 +1,88 @@
+.start-form-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--Neutral-5);
+  padding: 20px;
+}
+
+.start-form {
+  background-color: var(--Neutral-10);
+  padding: 40px;
+  border-radius: 16px;
+  border: 1px solid var(--border-stroke);
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.start-form h2 {
+  color: var(--accent-blue-headers);
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.start-form .form-subtitle {
+  text-align: center;
+  color: var(--Neutral-60);
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--Neutral-80);
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--Neutral-5);
+  border: 1px solid var(--Neutral-30);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--Blue-500);
+  box-shadow: 0 0 0 2px rgba(31, 148, 255, 0.2);
+}
+
+.start-form button {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--Neutral-5);
+  background-color: var(--Blue-500);
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  justify-content: center;
+}
+
+.start-form button:hover:not(:disabled) {
+  background-color: var(--Blue-400);
+}
+
+.start-form button:disabled {
+  background-color: var(--Neutral-30);
+  color: var(--Neutral-60);
+}

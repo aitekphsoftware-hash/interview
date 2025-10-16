@@ -2,7 +2,6 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
-// FIX: Cannot find namespace 'React'.
 import React, { useEffect, useRef } from 'react';
 
 export function useCamera(

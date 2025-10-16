@@ -2,42 +2,94 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
-import { useEffect, useRef } from 'react';
-import cn from 'classnames';
-import { Modality, LiveServerContent } from '@google/genai';
-import { useCamera } from '../../../hooks/media/useCamera';
+import { useEffect, useRef, useState } from 'react';
+import { Modality } from '@google/genai';
 import { useLiveAPIContext } from '../../../contexts/LiveAPIContext';
 import { useSettings, useLogStore, useTools, useMedia } from '@/lib/state';
-
-const renderContent = (text: string) => {
-  const parts = text.split(/(`{3}json\n[\s\S]*?\n`{3})/g);
-  return parts.map((part, index) => {
-    if (part.startsWith('```json')) {
-      const jsonContent = part.replace(/^`{3}json\n|`{3}$/g, '');
-      return (
-        <pre key={index}>
-          <code>{jsonContent}</code>
-        </pre>
-      );
-    }
-    const boldParts = part.split(/(\*\*.*?\*\*)/g);
-    return boldParts.map((boldPart, boldIndex) => {
-      if (boldPart.startsWith('**') && boldPart.endsWith('**')) {
-        return <strong key={boldIndex}>{boldPart.slice(2, -2)}</strong>;
-      }
-      return boldPart;
-    });
-  });
-};
+import { blobToBase64 } from '@/lib/utils';
 
 export default function StreamingConsole() {
   const { client, connected, setConfig } = useLiveAPIContext();
   const { systemPrompt, voice } = useSettings();
   const { tools } = useTools();
   const { isCameraOn } = useMedia();
-  const turns = useLogStore(state => state.turns);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  useCamera(videoRef, isCameraOn);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const frameIntervalRef = useRef<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  // Effect for the real-time call timer
+  useEffect(() => {
+    let timerId: number | undefined;
+
+    // Start the timer only when connected
+    if (connected) {
+      setElapsedTime(0); // Reset timer on new connection
+      timerId = window.setInterval(() => {
+        setElapsedTime(prevTime => prevTime + 1);
+      }, 1000);
+    }
+
+    // Cleanup function to clear the interval
+    return () => {
+      if (timerId) {
+        clearInterval(timerId);
+      }
+    };
+  }, [connected]); // Rerun effect when connection status changes
+
+  // Helper function to format seconds into MM:SS
+  const formatTime = (totalSeconds: number) => {
+    const minutes = Math.floor(totalSeconds / 60)
+      .toString()
+      .padStart(2, '0');
+    const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
+  };
+
+  // This effect is for sending video frames for AI analysis, it still needs the video element from the Header.
+  // A cleaner approach would be to pass the videoRef down or use a context.
+  // For now, we'll find it in the DOM, which is not ideal but works for this structure.
+  useEffect(() => {
+    const videoEl = document.querySelector(
+      '.self-view-container video',
+    ) as HTMLVideoElement;
+
+    if (connected && isCameraOn && videoEl && canvasRef.current) {
+      const canvasEl = canvasRef.current;
+      const ctx = canvasEl.getContext('2d');
+
+      if (!ctx) return;
+
+      frameIntervalRef.current = window.setInterval(() => {
+        if (videoEl.readyState < 2) {
+          // Wait until video is ready
+          return;
+        }
+        canvasEl.width = videoEl.videoWidth;
+        canvasEl.height = videoEl.videoHeight;
+        ctx.drawImage(videoEl, 0, 0, videoEl.videoWidth, videoEl.videoHeight);
+        canvasEl.toBlob(
+          async blob => {
+            if (blob) {
+              const base64Data = await blobToBase64(blob);
+              client.sendRealtimeInput([
+                { data: base64Data, mimeType: 'image/jpeg' },
+              ]);
+            }
+          },
+          'image/jpeg',
+          0.8, // quality
+        );
+      }, 1000); // Send one frame per second
+    }
+
+    return () => {
+      if (frameIntervalRef.current) {
+        clearInterval(frameIntervalRef.current);
+        frameIntervalRef.current = null;
+      }
+    };
+  }, [connected, isCameraOn, client, canvasRef]);
 
   useEffect(() => {
     const enabledTools = tools
@@ -87,22 +139,6 @@ export default function StreamingConsole() {
       }
     };
 
-    const handleContent = (serverContent: LiveServerContent) => {
-      const text =
-        serverContent.modelTurn?.parts
-          ?.map((p: any) => p.text)
-          .filter(Boolean)
-          .join(' ') ?? '';
-      if (!text) return;
-      const turns = useLogStore.getState().turns;
-      const last = turns.at(-1);
-      if (last?.role === 'agent' && !last.isFinal) {
-        updateLastTurn({ text: last.text + text });
-      } else {
-        addTurn({ role: 'agent', text, isFinal: false });
-      }
-    };
-
     const handleTurnComplete = () => {
       const last = useLogStore.getState().turns.at(-1);
       if (last && !last.isFinal) {
@@ -112,26 +148,32 @@ export default function StreamingConsole() {
 
     client.on('inputTranscription', handleInputTranscription);
     client.on('outputTranscription', handleOutputTranscription);
-    client.on('content', handleContent);
     client.on('turncomplete', handleTurnComplete);
 
     return () => {
       client.off('inputTranscription', handleInputTranscription);
       client.off('outputTranscription', handleOutputTranscription);
-      client.off('content', handleContent);
       client.off('turncomplete', handleTurnComplete);
     };
   }, [client]);
 
   return (
     <div className="video-call-container">
-      <div className="self-view-container">
-        <video ref={videoRef} muted autoPlay playsInline></video>
-        {!isCameraOn && (
-          <div className="camera-off-overlay">
-            <span className="icon">videocam_off</span>
-          </div>
-        )}
+      <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+      <img
+        src="https://botsrhere.online/assets/interviewer.png"
+        alt="Interviewer"
+        className="interviewer-view"
+      />
+      <div className="interviewer-info">
+        <div className="info-text">
+          <p className="interviewer-title">AI Interview Specialist</p>
+          <h2 className="interviewer-name">Veronica</h2>
+        </div>
+        <div className="call-timer">
+          <span className="recording-dot"></span>
+          <span>{formatTime(elapsedTime)}</span>
+        </div>
       </div>
     </div>
   );
