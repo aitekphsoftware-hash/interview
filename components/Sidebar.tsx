@@ -109,13 +109,13 @@ function ApplicantSettings() {
   );
 }
 
-// FIX: Define prop types for component to fix typing error with `key` prop.
 type WorkExperienceCardProps = {
   job: WorkExperience;
   update: (id: string, field: keyof WorkExperience, value: string) => void;
   remove: (id: string) => void;
 };
-function WorkExperienceCard({ job, update, remove }: WorkExperienceCardProps) {
+// FIX: Changed component definitions to use React.FC to correctly type them as React components, resolving issues with the 'key' prop.
+const WorkExperienceCard: React.FC<WorkExperienceCardProps> = ({ job, update, remove }) => {
   return (
     <div className="resume-entry-card">
         <div className="resume-entry-header">
@@ -132,13 +132,13 @@ function WorkExperienceCard({ job, update, remove }: WorkExperienceCardProps) {
   )
 }
 
-// FIX: Define prop types for component to fix typing error with `key` prop.
 type EducationCardProps = {
   edu: Education;
   update: (id: string, field: keyof Education, value: string) => void;
   remove: (id: string) => void;
 };
-function EducationCard({ edu, update, remove }: EducationCardProps) {
+// FIX: Changed component definitions to use React.FC to correctly type them as React components, resolving issues with the 'key' prop.
+const EducationCard: React.FC<EducationCardProps> = ({ edu, update, remove }) => {
   return (
     <div className="resume-entry-card">
         <div className="resume-entry-header">

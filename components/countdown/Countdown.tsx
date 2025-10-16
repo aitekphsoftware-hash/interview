@@ -41,7 +41,8 @@ const Countdown: React.FC<CountdownProps> = ({ onFinish }) => {
     <div className="countdown-overlay">
       <audio 
         ref={audioRef} 
-        src="https://www.soundjay.com/phone/sounds/telephone-ring-01a.mp3" 
+        // FIX: Replaced the previous audio source with a more reliable one to prevent loading errors.
+        src="https://actions.google.com/sounds/v1/alarms/telephone_beeps.ogg" 
         loop 
       />
       <div className="countdown-timer">{count}</div>

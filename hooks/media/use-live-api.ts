@@ -24,7 +24,7 @@ import { LiveConnectConfig, Modality, LiveServerToolCall } from '@google/genai';
 import { AudioStreamer } from '../../lib/audio-streamer';
 import { audioContext } from '../../lib/utils';
 import VolMeterWorket from '../../lib/worklets/vol-meter';
-import { useLogStore, useSettings } from '@/lib/state';
+import { useLogStore, useSettings, useAppEvents } from '@/lib/state';
 
 export type UseLiveApiResults = {
   client: GenAILiveClient;
@@ -100,6 +100,7 @@ export function useLiveApi({
 
     const onToolCall = (toolCall: LiveServerToolCall) => {
       const functionResponses: any[] = [];
+      const { triggerSnapshot } = useAppEvents.getState(); // Get trigger function
 
       for (const fc of toolCall.functionCalls) {
         let triggerMessage: string;
@@ -108,6 +109,9 @@ export function useLiveApi({
         if (fc.name === 'provide_interview_summary') {
           const { summary, recommendation } = fc.args;
           triggerMessage = `**Interview Complete**\n\n**Summary:**\n${summary}\n\n**Recommendation:** ${recommendation}`;
+        } else if (fc.name === 'take_snapshot') {
+          triggerMessage = `System: Taking snapshot. Reason: ${fc.args.reason}`;
+          triggerSnapshot(); // Trigger the snapshot effect
         } else {
           // Generic handler for other function calls
           triggerMessage = `Triggering function call: **${
@@ -161,6 +165,14 @@ export function useLiveApi({
   const connect = useCallback(async () => {
     if (!config) {
       throw new Error('config has not been set');
+    }
+    // FIX: Add a guard to ensure the configuration is fully populated before
+    // attempting to connect. This resolves a race condition on the initial
+    // interview load where `connect()` could be called with an empty config,
+    // leading to a "non-audio request" error from the API.
+    if (!config.responseModalities || (config.responseModalities as any[]).length === 0) {
+      console.warn('Live API config not ready, delaying connection attempt.');
+      return;
     }
     client.disconnect();
     await client.connect(config);

@@ -27,4 +27,20 @@ export const hrInterviewerTools: FunctionCall[] = [
     isEnabled: true,
     scheduling: FunctionResponseScheduling.INTERRUPT,
   },
+  {
+    name: 'take_snapshot',
+    description: "Takes a snapshot of the candidate from the video feed. Use this if you need to capture an image for the file, for example for identification purposes at the start of the interview. Provide a brief reason why you're taking it.",
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        reason: {
+          type: 'STRING',
+          description: "A brief, polite reason for taking the snapshot that will be communicated to the candidate.",
+        },
+      },
+      required: ['reason'],
+    },
+    isEnabled: true,
+    scheduling: FunctionResponseScheduling.INTERRUPT,
+  },
 ];

@@ -5,15 +5,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { Modality } from '@google/genai';
 import { useLiveAPIContext } from '../../../contexts/LiveAPIContext';
-import { useSettings, useLogStore, useTools, useMedia } from '@/lib/state';
+import { useSettings, useLogStore, useTools, useMedia, useAppEvents } from '@/lib/state';
 import { blobToBase64 } from '@/lib/utils';
 import { useCamera } from '@/hooks/media/useCamera';
+import cn from 'classnames';
 
 export default function StreamingConsole() {
   const { client, connected, setConfig } = useLiveAPIContext();
   const { systemPrompt, voice } = useSettings();
   const { tools } = useTools();
   const { isCameraOn } = useMedia();
+  const { snapshotTriggered } = useAppEvents();
+  const [showSnapshotFlash, setShowSnapshotFlash] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameIntervalRef = useRef<number | null>(null);
@@ -50,6 +53,36 @@ export default function StreamingConsole() {
     const seconds = (totalSeconds % 60).toString().padStart(2, '0');
     return `${minutes}:${seconds}`;
   };
+
+  // Effect for taking a snapshot
+  useEffect(() => {
+    // A snapshot can only be taken if the effect is triggered and the camera is on.
+    if (snapshotTriggered > 0 && isCameraOn) {
+      if (videoRef.current && canvasRef.current) {
+        const videoEl = videoRef.current;
+        const canvasEl = canvasRef.current;
+        const ctx = canvasEl.getContext('2d');
+        if (!ctx) return;
+
+        // Draw the current video frame to the canvas.
+        // The video element is visually mirrored via CSS, but drawImage captures the original, un-mirrored frame.
+        // This is correct for an identification snapshot.
+        canvasEl.width = videoEl.videoWidth;
+        canvasEl.height = videoEl.videoHeight;
+        ctx.drawImage(videoEl, 0, 0, videoEl.videoWidth, videoEl.videoHeight);
+
+        // Get the image data. For this demo, we'll just log it to the console.
+        // In a real application, this would be sent to a secure server.
+        const imageDataUrl = canvasEl.toDataURL('image/jpeg', 0.8);
+        console.log('Snapshot taken:', imageDataUrl.substring(0, 80) + '...');
+
+        // Trigger visual flash effect
+        setShowSnapshotFlash(true);
+        setTimeout(() => setShowSnapshotFlash(false), 300);
+      }
+    }
+  }, [snapshotTriggered, isCameraOn]);
+
 
   // Effect for sending video frames
   useEffect(() => {
@@ -158,6 +191,7 @@ export default function StreamingConsole() {
 
   return (
     <div className="video-call-container">
+      {showSnapshotFlash && <div className="snapshot-flash"></div>}
       <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
       <video ref={videoRef} muted autoPlay playsInline></video>
       {!isCameraOn && (
