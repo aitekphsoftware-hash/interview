@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import { useSettings } from "@/lib/state";
+import { useSettings } from "../lib/state";
 
 export default function Header() {
   const { hrImageUrl } = useSettings();

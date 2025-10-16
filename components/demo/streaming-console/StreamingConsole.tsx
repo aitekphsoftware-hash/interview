@@ -5,15 +5,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Modality } from '@google/genai';
 import { useLiveAPIContext } from '../../../contexts/LiveAPIContext';
-import { useSettings, useLogStore, useTools, useMedia, useAppEvents } from '@/lib/state';
-import { blobToBase64 } from '@/lib/utils';
-import { useCamera } from '@/hooks/media/useCamera';
+import { useSettings, useLogStore, useTools, useMedia, useAppEvents } from '../../../lib/state';
+import { blobToBase64 } from '../../../lib/utils';
+import { useCamera } from '../../../hooks/media/useCamera';
 
 export default function StreamingConsole() {
   const { client, connected, disconnect, setConfig } = useLiveAPIContext();
   const { systemPrompt, voice } = useSettings();
   const { tools } = useTools();
-  const { isCameraOn, setMic } = useMedia();
+  const { isCameraOn, isMicOn, setMic } = useMedia();
   const { snapshotTriggered } = useAppEvents();
   const [showSnapshotFlash, setShowSnapshotFlash] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -281,6 +281,12 @@ export default function StreamingConsole() {
         <div className="camera-off-overlay">
           <span className="material-symbols-outlined">videocam_off</span>
           <p>Your camera is off</p>
+        </div>
+      )}
+      {connected && !isMicOn && (
+        <div className="mute-indicator">
+          <span className="material-symbols-outlined">mic_off</span>
+          <p>You are muted</p>
         </div>
       )}
       <div className="interviewer-info">

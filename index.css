@@ -306,6 +306,34 @@ button .icon {
   font-size: 18px;
 }
 
+.mute-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px 30px;
+  border-radius: 16px;
+  color: var(--text);
+  z-index: 50;
+  pointer-events: none;
+}
+
+.mute-indicator .material-symbols-outlined {
+  font-size: 48px;
+}
+
+.mute-indicator p {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+}
+
 /* Overlays */
 .top-controls {
   position: absolute;
@@ -996,6 +1024,49 @@ button .icon {
   background-color: var(--gray-700);
 }
 
+/* Confirmation Dialog */
+.confirm-dialog-content {
+  text-align: center;
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+}
+.confirm-dialog-content h2 {
+  margin-bottom: 12px;
+  font-size: 22px;
+}
+.confirm-dialog-content p {
+  margin-bottom: 24px;
+  color: var(--Neutral-60);
+}
+.confirm-dialog-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+.dialog-button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 15px;
+  min-width: 120px;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+.dialog-button.cancel {
+  background-color: var(--Neutral-20);
+}
+.dialog-button.cancel:hover {
+  background-color: var(--Neutral-30);
+}
+.dialog-button.confirm-end {
+  background-color: var(--Red-600);
+}
+.dialog-button.confirm-end:hover {
+  background-color: var(--Red-700);
+}
+
 /* Explore Modal */
 .explore-modal-header {
   text-align: center;
@@ -1271,6 +1342,10 @@ button .icon {
     margin: 0;
     padding: 16px;
     padding-top: 48px; /* Space for close button */
+  }
+
+  .confirm-dialog-content {
+    max-width: 100%;
   }
 
   .interviewer-info {

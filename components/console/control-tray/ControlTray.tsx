@@ -21,14 +21,16 @@
 import cn from 'classnames';
 import { memo, useEffect, useState } from 'react';
 import { AudioRecorder } from '../../../lib/audio-recorder';
-import { useMedia, useUI } from '@/lib/state';
+import { useMedia, useUI } from '../../../lib/state';
 import { useLiveAPIContext } from '../../../contexts/LiveAPIContext';
+import Modal from '../../Modal';
 
 function ControlTray() {
   const [audioRecorder] = useState(() => new AudioRecorder());
   const { client, connected, connect, disconnect } = useLiveAPIContext();
   const { isCameraOn, isMicOn, toggleCamera, setCamera, setMic } = useMedia();
   const { toggleExploreModal, toggleTranscript, toggleSidebar } = useUI();
+  const [showEndCallConfirm, setShowEndCallConfirm] = useState(false);
 
 
   useEffect(() => {
@@ -60,12 +62,17 @@ function ControlTray() {
 
   const handleConnectToggle = () => {
     if (connected) {
-      disconnect();
+      setShowEndCallConfirm(true);
     } else {
       connect();
       setMic(true);
       setCamera(true);
     }
+  };
+
+  const handleConfirmEndCall = () => {
+    disconnect();
+    setShowEndCallConfirm(false);
   };
 
   const handleMicToggle = () => {
@@ -131,6 +138,19 @@ function ControlTray() {
           <span className="material-symbols-outlined">more_vert</span>
         </button>
       </section>
+
+      {showEndCallConfirm && (
+        <Modal onClose={() => setShowEndCallConfirm(false)}>
+          <div className="confirm-dialog-content">
+            <h2>End Interview?</h2>
+            <p>Are you sure you want to end the interview?</p>
+            <div className="confirm-dialog-actions">
+              <button className="dialog-button cancel" onClick={() => setShowEndCallConfirm(false)}>Cancel</button>
+              <button className="dialog-button confirm-end" onClick={handleConfirmEndCall}>End Interview</button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </>
   );
 }

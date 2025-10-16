@@ -5,7 +5,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import cn from 'classnames';
-import { useLogStore, useUI } from '@/lib/state';
+import { useLogStore, useUI } from '../../lib/state';
 import { marked } from 'marked';
 
 const TranscriptView: React.FC = () => {

@@ -11,10 +11,10 @@ import {
   WorkExperience,
   Education,
   useMedia,
-} from '@/lib/state';
+} from '../lib/state';
 import c from 'classnames';
-import { AVAILABLE_VOICES } from '@/lib/constants';
-import { useLiveAPIContext } from '@/contexts/LiveAPIContext';
+import { AVAILABLE_VOICES } from '../lib/constants';
+import { useLiveAPIContext } from '../contexts/LiveAPIContext';
 import React, { useEffect, useState } from 'react';
 import ToolEditorModal from './ToolEditorModal';
 

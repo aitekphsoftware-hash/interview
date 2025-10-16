@@ -6,9 +6,9 @@
 // FIX: Corrected import syntax for useState
 import React, { useState } from 'react';
 import Modal from '../Modal';
-import { useUI } from '@/lib/state';
-import { belgianJobs } from '@/lib/jobs';
-import { mockApplicants } from '@/lib/applicants';
+import { useUI } from '../../lib/state';
+import { belgianJobs } from '../../lib/jobs';
+import { mockApplicants } from '../../lib/applicants';
 
 const ExploreModal: React.FC = () => {
   const { isExploreModalOpen, toggleExploreModal } = useUI();
