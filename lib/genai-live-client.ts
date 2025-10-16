@@ -67,6 +67,8 @@ export interface LiveClientEventTypes {
   turncomplete: () => void;
   inputTranscription: (text: string, isFinal: boolean) => void;
   outputTranscription: (text: string, isFinal: boolean) => void;
+  // Emitted when the agent's speech playback has finished
+  agentSpeechEnd: () => void;
 }
 
 // FIX: Refactored to use composition for EventEmitter to resolve 'emit' not found errors.
@@ -198,6 +200,10 @@ export class GenAILiveClient {
     }
 
     this.log(`client.toolResponse`, { toolResponse });
+  }
+
+  public signalAgentSpeechEnd() {
+    this.emitter.emit('agentSpeechEnd');
   }
 
   protected onMessage(message: LiveServerMessage) {

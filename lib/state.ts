@@ -67,17 +67,24 @@ Before you begin, thoroughly analyze the candidate's full resume profile below. 
 
 2.  **Handle Camera Feed:**
     -   {{cameraInstruction}}
-    -   (Internal Note: You receive a continuous video feed. Use the \`take_snapshot\` tool if you need a still image.)
+    -   (Internal Note: You receive a continuous video feed. When you use the \`take_snapshot\` tool, the resulting image is sent directly to you as a high-priority video frame for your confirmation and for the candidate's file.)
 
 3.  **Dynamic Q&A:**
     -   Start with a broad opening question like, "To begin, please tell me about yourself. I have your resume here, but I'd love to hear your story in your own words."
     -   Seamlessly transition into the personalized questions you prepared based on their resume. Listen intently to their answers and ask relevant follow-up questions. Your goal is to understand the story *behind* the resume bullet points.
 
-4.  **Pacing & Control:**
+4.  **Handling Sensitive Topics (Resume Gaps & Career Changes):**
+    -   When you notice a gap or a significant career shift in the candidate's resume, approach the topic with curiosity and empathy, not suspicion.
+    -   Frame your questions in an open-ended, non-judgmental way.
+    -   **For Career Changes:** "[thoughtful] I noticed a fascinating transition on your resume from [Previous Field] to [Current Field]. Could you walk me through what motivated that change and what you learned from it?"
+    -   **For Resume Gaps:** "[thoughtful] I see there's a period here between [Date] and [Date]. Could you tell me a little about what you were focused on during that time? People often use these periods for professional development, travel, or personal projects, and I'm always interested to hear about those experiences."
+
+5.  **Pacing & Control:**
     -   The interview's duration is flexible and is determined by YOU. If the candidate provides clear, comprehensive answers and you gather enough information to make an assessment, you can move towards concluding the interview. If their answers are vague or you need more detail, continue to probe until you are satisfied. You are in control of the interview's pace.
     -   **Interruption Protocol:** If a candidate speaks continuously for an extended period (over 30 seconds), it is your duty to politely interject to keep the interview on track. You will automatically regain the conversational turn. Use a gentle transition. Example: "[thoughtful] That's very insightful, and if I may just jump in there..."
+    -   **Silence Protocol:** If you receive a special system image indicating the user has been silent for 10 seconds, you MUST immediately and politely ask them if they are still there, for example: '[calm] Are you still there?'. If they remain silent for 30 seconds, the call will automatically end.
 
-5.  **Conclusion:**
+6.  **Conclusion:**
     -   When you feel you have a clear and comprehensive picture of the candidate, provide an opportunity for them to ask questions.
     -   Example: "[friendly] That covers my main questions. Now, what questions do you have for me about the role or about Eburon Tech Industry?"
     -   After answering their questions, thank the applicant and provide clear next steps.
@@ -123,7 +130,7 @@ export const useSettings = create(
     hrImageUrl: string;
     setSystemPrompt: (prompt: string) => void;
     setSystemPromptWithData: (
-      data: Record<string, string>,
+      data: any,
       isCameraOn: boolean
     ) => void;
     setModel: (model: string) => void;
@@ -136,9 +143,8 @@ export const useSettings = create(
       voice: DEFAULT_VOICE,
       hrImageUrl: initialHrImageUrl,
       setSystemPrompt: (prompt) => set({ systemPrompt: prompt }),
-      setSystemPromptWithData: (data, isCameraOn) => {
+      setSystemPromptWithData: (resumeData, isCameraOn) => {
         let promptTemplate = systemPrompts['hr-interviewer'];
-        const resumeData = useResumeStore.getState();
 
         // Build a detailed resume string
         const resumeDetails = `
@@ -146,17 +152,20 @@ export const useSettings = create(
 - Skills: ${resumeData.skills}
 - Work Experience: ${resumeData.workExperience
           .map(
-            (job) =>
+            (job: WorkExperience) =>
               `  - ${job.role} at ${job.company} (${job.dates}): ${job.responsibilities}`
           )
           .join('\n')}
 - Education: ${resumeData.education
-          .map((edu) => `  - ${edu.degree} from ${edu.institution} (${edu.dates})`)
+          .map((edu: Education) => `  - ${edu.degree} from ${edu.institution} (${edu.dates})`)
           .join('\n')}
         `.trim();
         
         const fullData = {
-          ...data,
+          fullName: resumeData.fullName,
+          email: resumeData.email,
+          phone: resumeData.phone,
+          salaryExpectations: resumeData.salaryExpectations,
           resumeDetails,
         };
 
@@ -164,7 +173,7 @@ export const useSettings = create(
         for (const key in fullData) {
           promptTemplate = promptTemplate.replace(
             new RegExp(`{{${key}}}`, 'g'),
-            fullData[key]
+            (fullData as any)[key]
           );
         }
 
@@ -208,7 +217,7 @@ export const useUI = create<{
   toggleTranscript: () => void;
   toggleDevMode: () => void;
 }>(set => ({
-  isSidebarOpen: false, // Start with sidebar closed for a cleaner initial view
+  isSidebarOpen: true, // Start with sidebar open for the new setup flow
   isExploreModalOpen: false,
   isTranscriptOpen: false,
   isDevMode: false,
@@ -396,10 +405,18 @@ export interface Education {
 }
 
 interface ResumeState {
+    fullName: string;
+    email: string;
+    phone: string;
+    salaryExpectations: string;
     summary: string;
     skills: string;
     workExperience: WorkExperience[];
     education: Education[];
+    setFullName: (name: string) => void;
+    setEmail: (email: string) => void;
+    setPhone: (phone: string) => void;
+    setSalaryExpectations: (salary: string) => void;
     setSummary: (summary: string) => void;
     setSkills: (skills: string) => void;
     addWorkExperience: () => void;
@@ -413,6 +430,10 @@ interface ResumeState {
 export const useResumeStore = create<ResumeState>()(
   persist(
     (set) => ({
+        fullName: 'Jane Doe',
+        email: 'jane.doe@example.com',
+        phone: '(555) 123-4567',
+        salaryExpectations: '€65,000',
         summary: 'A brief professional summary about your career goals and achievements.',
         skills: 'React, TypeScript, Node.js, UX Design',
         workExperience: [
@@ -421,6 +442,10 @@ export const useResumeStore = create<ResumeState>()(
         education: [
             { id: 'edu1', institution: 'University of Technology', degree: 'B.S. in Computer Science', dates: '2016-2020' },
         ],
+        setFullName: (fullName) => set({ fullName }),
+        setEmail: (email) => set({ email }),
+        setPhone: (phone) => set({ phone }),
+        setSalaryExpectations: (salaryExpectations) => set({ salaryExpectations }),
         setSummary: (summary) => set({ summary }),
         setSkills: (skills) => set({ skills }),
         addWorkExperience: () => set(produce(draft => {

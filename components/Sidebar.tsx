@@ -10,14 +10,20 @@ import {
   useResumeStore,
   WorkExperience,
   Education,
+  useMedia,
 } from '@/lib/state';
 import c from 'classnames';
 import { AVAILABLE_VOICES } from '@/lib/constants';
 import { useLiveAPIContext } from '@/contexts/LiveAPIContext';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ToolEditorModal from './ToolEditorModal';
 
-export default function Sidebar() {
+interface SidebarProps {
+  interviewActive: boolean;
+  onStartInterview: () => void;
+}
+
+export default function Sidebar({ interviewActive, onStartInterview }: SidebarProps) {
   const { isSidebarOpen, toggleSidebar, isDevMode } = useUI();
   const [activeTab, setActiveTab] = useState<'applicant' | 'server'>('applicant');
 
@@ -34,7 +40,7 @@ export default function Sidebar() {
           className={c('sidebar-tab-button', { active: activeTab === 'applicant' })}
           onClick={() => setActiveTab('applicant')}
         >
-          Applicant Settings
+          Applicant Information
         </button>
         {isDevMode && (
           <button
@@ -48,24 +54,97 @@ export default function Sidebar() {
       </div>
 
       <div className="sidebar-content">
-        {activeTab === 'applicant' && <ApplicantSettings />}
+        {activeTab === 'applicant' && (
+          <ApplicantSettings onStartInterview={onStartInterview} interviewActive={interviewActive} />
+        )}
         {activeTab === 'server' && isDevMode && <ServerSettings />}
       </div>
     </aside>
   );
 }
 
-function ApplicantSettings() {
+interface ApplicantSettingsProps {
+  interviewActive: boolean;
+  onStartInterview: () => void;
+}
+
+function ApplicantSettings({ onStartInterview, interviewActive }: ApplicantSettingsProps) {
   const {
+    fullName, setFullName,
+    email, setEmail,
+    phone, setPhone,
+    salaryExpectations, setSalaryExpectations,
     summary, setSummary,
     skills, setSkills,
     workExperience, addWorkExperience, updateWorkExperience, removeWorkExperience,
     education, addEducation, updateEducation, removeEducation,
   } = useResumeStore();
-  const { connected } = useLiveAPIContext();
+  const { setSystemPromptWithData } = useSettings();
+  const { connect } = useLiveAPIContext();
+  const { setCamera, setMic, isCameraOn } = useMedia();
+  const { toggleSidebar } = useUI();
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  useEffect(() => {
+    setIsFormValid(!!(fullName && email && phone && salaryExpectations));
+  }, [fullName, email, phone, salaryExpectations]);
+
+  const handleStart = () => {
+    if (!isFormValid) return;
+    setSystemPromptWithData(useResumeStore.getState(), isCameraOn);
+    onStartInterview();
+    connect();
+    setMic(true);
+    setCamera(true);
+    toggleSidebar();
+  }
 
   return (
-    <fieldset disabled={connected}>
+    <>
+    <fieldset disabled={interviewActive}>
+       <div className="sidebar-section">
+        <h4 className="sidebar-section-title">Primary Information</h4>
+        <label>
+          Full Name
+          <input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="e.g., Jane Doe"
+            required
+          />
+        </label>
+         <label>
+          Email
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="e.g., jane.doe@example.com"
+            required
+          />
+        </label>
+        <label>
+          Phone Number
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="e.g., (555) 123-4567"
+            required
+          />
+        </label>
+        <label>
+          Salary Expectations (Annual)
+          <input
+            type="text"
+            value={salaryExpectations}
+            onChange={(e) => setSalaryExpectations(e.target.value)}
+            placeholder="e.g., €60,000"
+            required
+          />
+        </label>
+      </div>
       <div className="sidebar-section">
         <h4 className="sidebar-section-title">Applicant Resume</h4>
         <label>
@@ -106,6 +185,14 @@ function ApplicantSettings() {
         </button>
       </div>
     </fieldset>
+    {!interviewActive && (
+        <div className="sidebar-footer">
+          <button className="start-interview-button" onClick={handleStart} disabled={!isFormValid}>
+            Start Interview
+          </button>
+        </div>
+      )}
+    </>
   );
 }
 

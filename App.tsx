@@ -24,12 +24,10 @@ import ErrorScreen from './components/demo/ErrorScreen';
 import StreamingConsole from './components/demo/streaming-console/StreamingConsole';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
-import StartForm from './components/form/StartForm';
-import Countdown from './components/countdown/Countdown';
 import ExploreModal from './components/explore/ExploreModal';
 import TranscriptView from './components/transcript/TranscriptView';
-import { LiveAPIProvider, useLiveAPIContext } from './contexts/LiveAPIContext';
-import { useMedia, useSettings, useUI } from './lib/state';
+import { LiveAPIProvider } from './contexts/LiveAPIContext';
+import { useUI } from './lib/state';
 import { marked } from 'marked';
 
 // Required for transcript markdown parsing
@@ -40,19 +38,13 @@ if (typeof API_KEY !== 'string') {
   throw new Error('Missing required environment variable: API_KEY');
 }
 
-type AppState = 'form' | 'countdown' | 'interview';
-
 /**
  * Main application component that provides a streaming interface for Live API.
  * Manages video streaming state and provides controls for webcam/screen capture.
  */
 function App() {
-  const { toggleDevMode } = useUI();
-  const [appState, setAppState] = useState<AppState>('form');
-  const [shouldConnect, setShouldConnect] = useState(false);
-
-  const { connect, connected } = useLiveAPIContext();
-  const { setCamera, setMic } = useMedia();
+  const { toggleDevMode, isSidebarOpen, toggleSidebar } = useUI();
+  const [interviewActive, setInterviewActive] = useState(false);
 
   useEffect(() => {
     let keySequence = '';
@@ -76,48 +68,37 @@ function App() {
     };
   }, [toggleDevMode]);
 
-  useEffect(() => {
-    if (shouldConnect && !connected) {
-      connect();
-      setMic(true);
-      // We ask for camera to be true, the AI will prompt if it's not enabled.
-      setCamera(true);
-      setShouldConnect(false); // Reset trigger
-    }
-  }, [shouldConnect, connected, connect, setMic, setCamera]);
-
-  const { setSystemPromptWithData } = useSettings.getState();
-  const { isCameraOn } = useMedia.getState();
-
-  const handleFormSubmit = (data: Record<string, string>) => {
-    setSystemPromptWithData(data, isCameraOn); // Pass initial form data & camera state
-    setAppState('countdown');
-  };
-
-  const handleCountdownFinish = () => {
-    setAppState('interview');
-    // Set the trigger to connect. The useEffect will handle the connection
-    // after the StreamingConsole component has mounted and set its config.
-    setShouldConnect(true);
-  };
-
   return (
     <div className="App">
       <ErrorScreen />
-      {appState === 'form' && <StartForm onSubmit={handleFormSubmit} />}
-      {appState === 'countdown' && <Countdown onFinish={handleCountdownFinish} />}
-      {appState === 'interview' && (
-        <>
-          <Sidebar />
-          <ExploreModal />
-          <TranscriptView />
-          <main className="main-app-area">
-            <StreamingConsole />
-            <Header />
-            <ControlTray />
-          </main>
-        </>
-      )}
+      <Sidebar
+        interviewActive={interviewActive}
+        onStartInterview={() => setInterviewActive(true)}
+      />
+      <ExploreModal />
+      <TranscriptView />
+      <main className="main-app-area">
+        {!interviewActive && (
+          <div className="welcome-screen">
+             <div className="welcome-content">
+              <span className="welcome-icon">edit_note</span>
+              <h1>Prepare for the Interview</h1>
+              <p>
+                Fill out the applicant's details in the settings panel to begin.
+              </p>
+               {!isSidebarOpen && (
+                  <button className="open-settings-button" onClick={toggleSidebar}>
+                    <span className="material-symbols-outlined">settings</span>
+                    Open Settings
+                  </button>
+                )}
+             </div>
+          </div>
+        )}
+        <StreamingConsole />
+        <Header />
+        <ControlTray />
+      </main>
     </div>
   );
 }

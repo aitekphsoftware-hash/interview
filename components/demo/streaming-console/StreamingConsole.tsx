@@ -10,7 +10,7 @@ import { blobToBase64 } from '@/lib/utils';
 import { useCamera } from '@/hooks/media/useCamera';
 
 export default function StreamingConsole() {
-  const { client, connected, setConfig } = useLiveAPIContext();
+  const { client, connected, disconnect, setConfig } = useLiveAPIContext();
   const { systemPrompt, voice } = useSettings();
   const { tools } = useTools();
   const { isCameraOn, setMic } = useMedia();
@@ -20,6 +20,8 @@ export default function StreamingConsole() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameIntervalRef = useRef<number | null>(null);
   const interruptionTimerRef = useRef<number | null>(null);
+  const silencePromptTimerRef = useRef<number | null>(null);
+  const silenceDisconnectTimerRef = useRef<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
 
   // Hook to manage camera stream
@@ -155,10 +157,22 @@ export default function StreamingConsole() {
     setConfig(config);
   }, [setConfig, systemPrompt, tools, voice]);
 
+  const clearSilenceTimers = () => {
+    if (silencePromptTimerRef.current) {
+      clearTimeout(silencePromptTimerRef.current);
+      silencePromptTimerRef.current = null;
+    }
+    if (silenceDisconnectTimerRef.current) {
+      clearTimeout(silenceDisconnectTimerRef.current);
+      silenceDisconnectTimerRef.current = null;
+    }
+  };
+
   useEffect(() => {
     const { addTurn, updateLastTurn } = useLogStore.getState();
 
     const handleInputTranscription = (text: string, isFinal: boolean) => {
+      clearSilenceTimers(); // Clear silence timers as soon as user speaks
       const turns = useLogStore.getState().turns;
       const last = turns[turns.length - 1];
       if (last && last.role === 'user' && !last.isFinal) {
@@ -167,7 +181,7 @@ export default function StreamingConsole() {
         addTurn({ role: 'user', text, isFinal });
       }
 
-      // Set/reset the interruption timer whenever the user speaks
+      // Set/reset the long-speech interruption timer whenever the user speaks
       if (interruptionTimerRef.current) {
         clearTimeout(interruptionTimerRef.current);
       }
@@ -206,19 +220,57 @@ export default function StreamingConsole() {
       }
     };
 
+    const handleAgentSpeechEnd = () => {
+      console.log('Agent speech ended. Starting silence timers.');
+      clearSilenceTimers(); // Clear any existing timers first
+
+      // After 10s of silence, send a cue to Veronica
+      silencePromptTimerRef.current = window.setTimeout(() => {
+        console.log('10 seconds of silence detected. Sending cue to AI.');
+        const cueCanvas = document.createElement('canvas');
+        cueCanvas.width = 320;
+        cueCanvas.height = 240;
+        const ctx = cueCanvas.getContext('2d');
+        if (ctx) {
+          ctx.fillStyle = 'black';
+          ctx.fillRect(0, 0, cueCanvas.width, cueCanvas.height);
+          ctx.fillStyle = 'white';
+          ctx.font = '14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('SYSTEM CUE: USER IS SILENT', cueCanvas.width / 2, cueCanvas.height / 2);
+          cueCanvas.toBlob(async (blob) => {
+            if (blob) {
+              const base64Data = await blobToBase64(blob);
+              client.sendRealtimeInput([{ data: base64Data, mimeType: 'image/jpeg' }]);
+            }
+          }, 'image/jpeg');
+        }
+      }, 10000); // 10 seconds
+
+      // After 30s of silence, end the call
+      silenceDisconnectTimerRef.current = window.setTimeout(() => {
+        console.log('30 seconds of silence detected. Ending interview.');
+        disconnect();
+      }, 30000); // 30 seconds
+    };
+
     client.on('inputTranscription', handleInputTranscription);
     client.on('outputTranscription', handleOutputTranscription);
     client.on('turncomplete', handleTurnComplete);
+    client.on('agentSpeechEnd', handleAgentSpeechEnd);
+
 
     return () => {
       client.off('inputTranscription', handleInputTranscription);
       client.off('outputTranscription', handleOutputTranscription);
       client.off('turncomplete', handleTurnComplete);
+      client.off('agentSpeechEnd', handleAgentSpeechEnd);
       if (interruptionTimerRef.current) {
         clearTimeout(interruptionTimerRef.current);
       }
+      clearSilenceTimers();
     };
-  }, [client, setMic]);
+  }, [client, setMic, disconnect]);
 
   return (
     <div className="video-call-container">

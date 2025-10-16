@@ -74,11 +74,16 @@ code {
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
 body {
   font-family: 'Google Sans Display', sans-serif;
   background: var(--Neutral-00);
   color: var(--text);
-  overflow: hidden;
 }
 
 h1,
@@ -89,6 +94,13 @@ h5,
 h6 {
   font-weight: normal;
 }
+
+h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
 
 li {
   list-style: none;
@@ -101,7 +113,7 @@ textarea {
   color: white;
   border: none;
   outline: none;
-  font-size: 18px;
+  font-size: 16px;
   resize: none;
   user-select: text;
 }
@@ -185,6 +197,57 @@ button .icon {
   height: 100vh;
   width: 100vw;
 }
+
+/* Welcome Screen */
+.welcome-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  color: var(--gray-500);
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--Neutral-5);
+  z-index: 5;
+}
+
+.welcome-content {
+  max-width: 600px;
+  padding: 20px;
+}
+
+.welcome-icon {
+  font-size: 60px;
+  color: var(--gray-700);
+  margin-bottom: 20px;
+  font-family: 'Material Symbols Outlined';
+}
+
+.welcome-content p {
+  font-size: 18px;
+  margin-bottom: 30px;
+}
+
+.open-settings-button {
+  background-color: var(--Neutral-15);
+  padding: 12px 20px;
+  border-radius: 99px;
+  font-weight: 500;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.open-settings-button:hover {
+  background-color: var(--Neutral-20);
+}
+
+.open-settings-button .material-symbols-outlined {
+  font-size: 20px;
+}
+
 
 /* Video Call Layout */
 .video-call-container {
@@ -480,7 +543,7 @@ button .icon {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
   overflow-y: auto;
   flex-grow: 1;
 }
@@ -506,7 +569,7 @@ button .icon {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
 .sidebar-content fieldset:disabled {
@@ -556,6 +619,34 @@ button .icon {
   background-position: right 12px center;
   background-size: 1em;
   padding-right: 30px;
+}
+
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid var(--gray-800);
+  background-color: var(--gray-900);
+}
+
+.start-interview-button {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--Neutral-5);
+  background-color: var(--Blue-500);
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  justify-content: center;
+}
+
+.start-interview-button:hover:not(:disabled) {
+  background-color: var(--Blue-400);
+}
+
+.start-interview-button:disabled {
+  background-color: var(--Neutral-30);
+  color: var(--Neutral-60);
+  cursor: not-allowed;
 }
 
 .tool-item {
@@ -905,151 +996,6 @@ button .icon {
   background-color: var(--gray-700);
 }
 
-/* Start Form Styles */
-.start-form-container {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--Neutral-5);
-  overflow-y: auto;
-  padding: 20px;
-}
-
-.start-form {
-  background-color: var(--Neutral-10);
-  padding: 40px;
-  border-radius: 16px;
-  border: 1px solid var(--border-stroke);
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.start-form h2 {
-  color: var(--accent-blue-headers);
-  text-align: center;
-  margin-bottom: 10px;
-  font-size: 28px;
-}
-
-.start-form .form-subtitle {
-  text-align: center;
-  color: var(--Neutral-60);
-  margin-bottom: 30px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--Neutral-80);
-  font-size: 14px;
-}
-
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 12px;
-  background-color: var(--Neutral-5);
-  border: 1px solid var(--Neutral-30);
-  border-radius: 8px;
-  color: var(--text);
-  font-size: 16px;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--Blue-500);
-  box-shadow: 0 0 0 2px rgba(31, 148, 255, 0.2);
-}
-
-.form-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 10px;
-}
-
-.start-form button {
-  width: 100%;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--Neutral-5);
-  background-color: var(--Blue-500);
-  border-radius: 8px;
-  transition: background-color 0.2s;
-  justify-content: center;
-}
-
-.start-form button:hover:not(:disabled) {
-  background-color: var(--Blue-400);
-}
-
-.start-form button:disabled {
-  background-color: var(--Neutral-30);
-  color: var(--Neutral-60);
-}
-
-.start-form button.clear-button {
-  background-color: var(--Neutral-20);
-  color: var(--Neutral-80);
-  flex-shrink: 1;
-  width: auto;
-}
-.start-form button.clear-button:hover:not(:disabled) {
-  background-color: var(--Neutral-30);
-}
-
-/* Countdown Styles */
-.countdown-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.9);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.countdown-timer {
-  font-size: 120px;
-  font-weight: bold;
-  color: var(--text);
-  animation: pulse 1s infinite;
-}
-
-.countdown-message {
-  font-size: 24px;
-  color: var(--Neutral-80);
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
 /* Explore Modal */
 .explore-modal-header {
   text-align: center;
@@ -1105,16 +1051,17 @@ button .icon {
   border: 1px solid var(--Neutral-20);
 }
 .job-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   color: var(--text);
 }
 .job-company {
   color: var(--accent-blue);
   margin-bottom: 4px;
+  font-size: 14px;
 }
 .job-location {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--Neutral-60);
   margin-bottom: 12px;
 }
@@ -1132,7 +1079,7 @@ button .icon {
 }
 
 .job-description {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--Neutral-80);
   line-height: 1.5;
 }
@@ -1156,15 +1103,16 @@ button .icon {
   flex-grow: 1;
 }
 .applicant-name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
 }
 .applicant-role {
   color: var(--accent-blue);
   margin-bottom: 4px;
+  font-size: 14px;
 }
 .applicant-experience {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--Neutral-60);
 }
 .pick-button {
@@ -1299,4 +1247,52 @@ button .icon {
 }
 .turn-system .turn-role {
   display: none;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    border-left: none;
+  }
+
+  .transcript-overlay {
+    width: 100%;
+    max-width: 100%;
+    border-left: none;
+  }
+
+  .modalShroud .modal {
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100dvh;
+    border-radius: 0;
+    margin: 0;
+    padding: 16px;
+    padding-top: 48px; /* Space for close button */
+  }
+
+  .interviewer-info {
+    left: 16px;
+    bottom: 100px;
+  }
+
+  .side-controls-container {
+    right: 16px;
+    bottom: 100px;
+  }
+
+  .control-tray {
+    max-width: calc(100% - 32px);
+  }
+
+  .interviewer-pip-container {
+    width: 80px;
+    height: 120px;
+  }
+
+  .interviewer-name {
+    font-size: 24px;
+  }
 }

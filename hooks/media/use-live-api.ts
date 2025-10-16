@@ -54,22 +54,30 @@ export function useLiveApi({
 
   // register audio for streaming server -> speakers
   useEffect(() => {
+    const setupAudioStreamer = (audioCtx: AudioContext) => {
+      const streamer = new AudioStreamer(audioCtx);
+      streamer.onComplete = () => {
+        client.signalAgentSpeechEnd();
+      };
+      streamer
+        .addWorklet<any>('vumeter-out', VolMeterWorket, (ev: any) => {
+          setVolume(ev.data.volume);
+        })
+        .catch(err => {
+          console.error('Error adding worklet:', err);
+        });
+      audioStreamerRef.current = streamer;
+    };
+  
     if (!audioStreamerRef.current) {
-      audioContext({ id: 'audio-out' }).then((audioCtx: AudioContext) => {
-        audioStreamerRef.current = new AudioStreamer(audioCtx);
-        audioStreamerRef.current
-          .addWorklet<any>('vumeter-out', VolMeterWorket, (ev: any) => {
-            setVolume(ev.data.volume);
-          })
-          .then(() => {
-            // Successfully added worklet
-          })
-          .catch(err => {
-            console.error('Error adding worklet:', err);
-          });
-      });
+      audioContext({ id: 'audio-out' }).then(setupAudioStreamer);
+    } else {
+      // Ensure onComplete is always up-to-date with the latest client instance
+      audioStreamerRef.current.onComplete = () => {
+        client.signalAgentSpeechEnd();
+      };
     }
-  }, [audioStreamerRef]);
+  }, [client]);
 
   useEffect(() => {
     const onOpen = () => {
