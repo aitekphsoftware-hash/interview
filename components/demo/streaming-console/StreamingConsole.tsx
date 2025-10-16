@@ -291,7 +291,7 @@ export default function StreamingConsole() {
       )}
       <div className="interviewer-info">
         <div className="info-text">
-          <p className="interviewer-title">AI Interview Specialist</p>
+          <p className="interviewer-title">HR Manager</p>
           <h2 className="interviewer-name">Veronica</h2>
         </div>
         <div className="call-timer">

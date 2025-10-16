@@ -30,10 +30,8 @@ export default function Sidebar({ interviewActive, onStartInterview }: SidebarPr
   return (
     <aside className={c('sidebar', { open: isSidebarOpen })}>
       <div className="sidebar-header">
-        <h3>Settings</h3>
-        <button onClick={toggleSidebar} className="close-button">
-          <span className="icon">close</span>
-        </button>
+        <h3>Applicant Information</h3>
+        {/* The close button is removed as per the new design spec */}
       </div>
       <div className="sidebar-tabs">
         <button
@@ -73,6 +71,8 @@ function ApplicantSettings({ onStartInterview, interviewActive }: ApplicantSetti
     fullName, setFullName,
     email, setEmail,
     phone, setPhone,
+    dateOfBirth, setDateOfBirth,
+    gender, setGender,
     salaryExpectations, setSalaryExpectations,
     summary, setSummary,
     skills, setSkills,
@@ -86,8 +86,8 @@ function ApplicantSettings({ onStartInterview, interviewActive }: ApplicantSetti
   const [isFormValid, setIsFormValid] = useState(false);
 
   useEffect(() => {
-    setIsFormValid(!!(fullName && email && phone && salaryExpectations));
-  }, [fullName, email, phone, salaryExpectations]);
+    setIsFormValid(!!(fullName && email && phone && salaryExpectations && dateOfBirth && gender));
+  }, [fullName, email, phone, salaryExpectations, dateOfBirth, gender]);
 
   const handleStart = () => {
     if (!isFormValid) return;
@@ -133,6 +133,25 @@ function ApplicantSettings({ onStartInterview, interviewActive }: ApplicantSetti
             placeholder="e.g., (555) 123-4567"
             required
           />
+        </label>
+        <label>
+            Date of Birth
+            <input
+                type="date"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                required
+            />
+        </label>
+        <label>
+            Gender
+            <select value={gender} onChange={(e) => setGender(e.target.value)} required>
+                <option value="" disabled>Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+            </select>
         </label>
         <label>
           Salary Expectations (Annual)
@@ -190,6 +209,11 @@ function ApplicantSettings({ onStartInterview, interviewActive }: ApplicantSetti
           <button className="start-interview-button" onClick={handleStart} disabled={!isFormValid}>
             Start Interview
           </button>
+          {!isFormValid && (
+            <p className="start-interview-helper-text">
+              Please fill in all primary information to begin.
+            </p>
+          )}
         </div>
       )}
     </>

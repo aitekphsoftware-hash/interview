@@ -43,7 +43,7 @@ if (typeof API_KEY !== 'string') {
  * Manages video streaming state and provides controls for webcam/screen capture.
  */
 function App() {
-  const { toggleDevMode, isSidebarOpen, toggleSidebar } = useUI();
+  const { toggleDevMode } = useUI();
   const [interviewActive, setInterviewActive] = useState(false);
 
   useEffect(() => {
@@ -82,16 +82,10 @@ function App() {
           <div className="welcome-screen">
              <div className="welcome-content">
               <span className="welcome-icon">edit_note</span>
-              <h1>Prepare for the Interview</h1>
+              <h1>Welcome to the Interview</h1>
               <p>
-                Fill out the applicant's details in the settings panel to begin.
+                Fill out the applicant's details in the sidebar to begin.
               </p>
-               {!isSidebarOpen && (
-                  <button className="open-settings-button" onClick={toggleSidebar}>
-                    <span className="material-symbols-outlined">settings</span>
-                    Open Settings
-                  </button>
-                )}
              </div>
           </div>
         )}

@@ -231,24 +231,6 @@ button .icon {
   margin-bottom: 30px;
 }
 
-.open-settings-button {
-  background-color: var(--Neutral-15);
-  padding: 12px 20px;
-  border-radius: 99px;
-  font-weight: 500;
-  justify-content: center;
-  transition: background-color 0.2s;
-}
-
-.open-settings-button:hover {
-  background-color: var(--Neutral-20);
-}
-
-.open-settings-button .material-symbols-outlined {
-  font-size: 20px;
-}
-
-
 /* Video Call Layout */
 .video-call-container {
   width: 100%;
@@ -335,7 +317,7 @@ button .icon {
 }
 
 /* Overlays */
-.top-controls {
+.top-header {
   position: absolute;
   top: max(16px, env(safe-area-inset-top));
   left: max(16px, env(safe-area-inset-left));
@@ -344,10 +326,14 @@ button .icon {
   justify-content: space-between;
   align-items: flex-start;
   z-index: 10;
+  pointer-events: none; /* Allow clicks to pass through */
+}
+.top-header > * {
+  pointer-events: auto; /* Re-enable pointer events for children */
 }
 
+
 .interviewer-pip-container {
-  position: relative;
   width: 100px;
   height: 150px;
   border-radius: 20px;
@@ -355,9 +341,11 @@ button .icon {
   border: 2px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   background-color: var(--Neutral-10);
+  margin-left: auto; /* Pushes it to the right */
 }
 
-.interviewer-pip-container img {
+
+.interviewer-pip-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -524,14 +512,11 @@ button .icon {
   padding: 16px 20px;
   border-bottom: 1px solid var(--gray-800);
   flex-shrink: 0;
+  min-height: 65px; /* Added to maintain height after removing close button */
 }
 
 .sidebar-header h3 {
   font-size: 20px;
-}
-
-.sidebar-header .close-button {
-  font-size: 24px;
 }
 
 .sidebar-tabs {
@@ -653,6 +638,9 @@ button .icon {
   padding: 20px;
   border-top: 1px solid var(--gray-800);
   background-color: var(--gray-900);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .start-interview-button {
@@ -675,6 +663,12 @@ button .icon {
   background-color: var(--Neutral-30);
   color: var(--Neutral-60);
   cursor: not-allowed;
+}
+
+.start-interview-helper-text {
+  font-size: 13px;
+  color: var(--Neutral-60);
+  text-align: center;
 }
 
 .tool-item {
@@ -1326,11 +1320,29 @@ button .icon {
     width: 100%;
     border-left: none;
   }
+  
+  .sidebar-header, .sidebar-content, .sidebar-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .sidebar-section-title {
+    font-size: 13px;
+  }
+
+  .sidebar-content label {
+    font-size: 13px;
+  }
 
   .transcript-overlay {
     width: 100%;
     max-width: 100%;
     border-left: none;
+  }
+  
+  .transcript-header, .transcript-content {
+    padding-left: 16px;
+    padding-right: 16px;
   }
 
   .modalShroud .modal {
@@ -1351,15 +1363,34 @@ button .icon {
   .interviewer-info {
     left: 16px;
     bottom: 100px;
+    gap: 8px;
   }
 
   .side-controls-container {
     right: 16px;
     bottom: 100px;
+    gap: 12px;
   }
 
   .control-tray {
     max-width: calc(100% - 32px);
+    padding: 8px;
+    gap: 4px;
+  }
+
+  .bottom-action-button {
+    width: 44px;
+    height: 44px;
+  }
+  .bottom-action-button .material-symbols-outlined {
+    font-size: 24px;
+  }
+  .end-call-button {
+    height: 48px;
+    width: 64px;
+  }
+  .end-call-button .material-symbols-outlined {
+    font-size: 28px;
   }
 
   .interviewer-pip-container {
@@ -1369,5 +1400,9 @@ button .icon {
 
   .interviewer-name {
     font-size: 24px;
+  }
+  
+  .interviewer-title {
+    font-size: 14px;
   }
 }

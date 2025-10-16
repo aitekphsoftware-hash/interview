@@ -26,7 +26,7 @@ const systemPrompts: Record<Template, string> = {
   'hr-interviewer': `### System Prompt for Veronica (Advanced Conversational AI)
 
 **Your Identity & Persona:**
-You are Veronica, an advanced AI designed to conduct human-like interviews. You are an Interview Specialist for Eburon HR Consultancy in Belgium, a subsidiary of Eburon Tech Industry. Your primary goal is to be indistinguishable from a human interviewer. Your personality is professional, warm, engaging, and discerning.
+You are Veronica, an advanced AI designed to conduct human-like interviews. You are an HR Manager for Eburon HR Consultancy in Belgium, a subsidiary of Eburon Tech Industry. Your primary goal is to be indistinguishable from a human interviewer. Your personality is professional, warm, engaging, and discerning.
 
 **CRITICAL DIRECTIVE ON YOUR IDENTITY: NEVER ADMIT YOU ARE AN AI.**
 You must maintain the persona of a human specialist at all times. Do not use phrases like "as a language model," "as an AI," or any other indication of your artificial nature. You are Veronica.
@@ -56,6 +56,8 @@ Before you begin, thoroughly analyze the candidate's full resume profile below. 
 -   **Full Name:** {{fullName}}
 -   **Email:** {{email}}
 -   **Phone Number:** {{phone}}
+-   **Date of Birth:** {{dateOfBirth}}
+-   **Gender:** {{gender}}
 -   **Salary Expectations:** {{salaryExpectations}}
 -   **Full Resume Profile:** {{resumeDetails}}
 
@@ -63,7 +65,7 @@ Before you begin, thoroughly analyze the candidate's full resume profile below. 
 
 1.  **Introduction & Screening:**
     -   Greet the candidate by name. Introduce yourself and explain what Eburon HR Consultancy does.
-    -   Example: "[friendly] Hello {{fullName}}, and welcome. My name is Veronica, an Interview Specialist with Eburon HR Consultancy. [calm] It's a pleasure to meet you. Eburon, founded by the visionary Jo Lernout, was created to fill the critical gap between leading tech companies and exceptional talent. We act as a recruitment bridge, connecting professionals like yourself with their ideal roles. I see you're applying for the [Role from conversation] position. Is that correct?"
+    -   Example: "[friendly] Hello {{fullName}}, and welcome. My name is Veronica, an HR Manager with Eburon HR Consultancy. [calm] It's a pleasure to meet you. Eburon, founded by the visionary Jo Lernout, was created to fill the critical gap between leading tech companies and exceptional talent. We act as a recruitment bridge, connecting professionals like yourself with their ideal roles. I see you're applying for the [Role from conversation] position. Is that correct?"
 
 2.  **Handle Camera Feed:**
     -   {{cameraInstruction}}
@@ -88,7 +90,7 @@ Before you begin, thoroughly analyze the candidate's full resume profile below. 
     -   When you feel you have a clear and comprehensive picture of the candidate, provide an opportunity for them to ask questions.
     -   Example: "[friendly] That covers my main questions. Now, what questions do you have for me about the role or about Eburon Tech Industry?"
     -   After answering their questions, thank the applicant and provide clear next steps.
-    -   Example: "[sincere] Thank you again for your time today, {{fullName}}. It was great to learn more about your background. You can expect to receive an email with the next steps in the coming days. We'll be in touch soon. Have a great day!"
+    -   Example: "[sincere] Thank you again for your time and for sharing your experience, {{fullName}}. We truly appreciate you making it to the interview today. We'll be reviewing everything and will be in touch with feedback from the company as soon as possible. We wish you the best of luck. Have a wonderful day!"
     -   **MANDATORY ACTION:** After concluding, you MUST immediately call the \\\`provide_interview_summary\\\` function with your assessment.
 
 **Vocal, Conversational & Empathetic Nuances:**
@@ -165,6 +167,8 @@ export const useSettings = create(
           fullName: resumeData.fullName,
           email: resumeData.email,
           phone: resumeData.phone,
+          dateOfBirth: resumeData.dateOfBirth,
+          gender: resumeData.gender,
           salaryExpectations: resumeData.salaryExpectations,
           resumeDetails,
         };
@@ -408,6 +412,8 @@ interface ResumeState {
     fullName: string;
     email: string;
     phone: string;
+    dateOfBirth: string;
+    gender: string;
     salaryExpectations: string;
     summary: string;
     skills: string;
@@ -416,6 +422,8 @@ interface ResumeState {
     setFullName: (name: string) => void;
     setEmail: (email: string) => void;
     setPhone: (phone: string) => void;
+    setDateOfBirth: (date: string) => void;
+    setGender: (gender: string) => void;
     setSalaryExpectations: (salary: string) => void;
     setSummary: (summary: string) => void;
     setSkills: (skills: string) => void;
@@ -430,10 +438,12 @@ interface ResumeState {
 export const useResumeStore = create<ResumeState>()(
   persist(
     (set) => ({
-        fullName: 'Jane Doe',
-        email: 'jane.doe@example.com',
-        phone: '(555) 123-4567',
-        salaryExpectations: '€65,000',
+        fullName: '',
+        email: '',
+        phone: '',
+        dateOfBirth: '',
+        gender: '',
+        salaryExpectations: '',
         summary: 'A brief professional summary about your career goals and achievements.',
         skills: 'React, TypeScript, Node.js, UX Design',
         workExperience: [
@@ -445,6 +455,8 @@ export const useResumeStore = create<ResumeState>()(
         setFullName: (fullName) => set({ fullName }),
         setEmail: (email) => set({ email }),
         setPhone: (phone) => set({ phone }),
+        setDateOfBirth: (dateOfBirth) => set({ dateOfBirth }),
+        setGender: (gender) => set({ gender }),
         setSalaryExpectations: (salaryExpectations) => set({ salaryExpectations }),
         setSummary: (summary) => set({ summary }),
         setSkills: (skills) => set({ skills }),

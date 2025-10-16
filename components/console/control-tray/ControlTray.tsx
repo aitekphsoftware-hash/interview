@@ -104,18 +104,6 @@ function ControlTray() {
             {isCameraOn ? 'videocam' : 'videocam_off'}
           </span>
         </button>
-        <button
-          className="action-button"
-          onClick={handleMicToggle}
-          title={isMicOn ? 'Mute microphone' : 'Unmute microphone'}
-          disabled={!connected}
-        >
-          <span
-            className={cn('material-symbols-outlined', { 'off-icon': !isMicOn })}
-          >
-            {isMicOn ? 'mic' : 'mic_off'}
-          </span>
-        </button>
       </div>
 
       <section className="control-tray">
@@ -136,6 +124,18 @@ function ControlTray() {
         </button>
         <button className="bottom-action-button" title="Settings" onClick={toggleSidebar}>
           <span className="material-symbols-outlined">more_vert</span>
+        </button>
+        <button
+          className="bottom-action-button"
+          onClick={handleMicToggle}
+          title={isMicOn ? 'Mute microphone' : 'Unmute microphone'}
+          disabled={!connected}
+        >
+          <span
+            className={cn('material-symbols-outlined', { 'off-icon': !isMicOn })}
+          >
+            {isMicOn ? 'mic' : 'mic_off'}
+          </span>
         </button>
       </section>
 

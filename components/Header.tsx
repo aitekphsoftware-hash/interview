@@ -9,16 +9,16 @@ export default function Header() {
   const { hrImageUrl } = useSettings();
 
   return (
-    <div className="top-controls">
-      {/* This button is currently for layout purposes */}
-      <div style={{ width: 40, height: 40 }} />
+    <header className="top-header">
+      <div className="logo-placeholder"></div>
       <div className="interviewer-pip-container">
         <img
           src={hrImageUrl}
           alt="Veronica, AI Interviewer"
+          className="interviewer-pip-image"
         />
         <div className="interviewer-pip-name">Veronica</div>
       </div>
-    </div>
+    </header>
   );
 }
