@@ -11,7 +11,7 @@ import { useCamera } from '../../../hooks/media/useCamera';
 
 export default function StreamingConsole() {
   const { client, connected, disconnect, setConfig } = useLiveAPIContext();
-  const { systemPrompt, voice } = useSettings();
+  const { systemPrompt, voice, hrImageUrl } = useSettings();
   const { tools } = useTools();
   const { isCameraOn, isMicOn, setMic } = useMedia();
   const { snapshotTriggered } = useAppEvents();
@@ -274,6 +274,14 @@ export default function StreamingConsole() {
 
   return (
     <div className="video-call-container">
+      <div className="interviewer-pip-container">
+        <img
+          src={hrImageUrl}
+          alt="Veronica, HR Manager"
+          className="interviewer-pip-image"
+        />
+        <div className="interviewer-pip-name">Veronica</div>
+      </div>
       {showSnapshotFlash && <div className="snapshot-flash"></div>}
       <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
       <video ref={videoRef} muted autoPlay playsInline></video>

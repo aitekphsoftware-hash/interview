@@ -317,23 +317,11 @@ button .icon {
 }
 
 /* Overlays */
-.top-header {
+.interviewer-pip-container {
   position: absolute;
   top: max(16px, env(safe-area-inset-top));
-  left: max(16px, env(safe-area-inset-left));
   right: max(16px, env(safe-area-inset-right));
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
   z-index: 10;
-  pointer-events: none; /* Allow clicks to pass through */
-}
-.top-header > * {
-  pointer-events: auto; /* Re-enable pointer events for children */
-}
-
-
-.interviewer-pip-container {
   width: 100px;
   height: 150px;
   border-radius: 20px;
@@ -341,7 +329,6 @@ button .icon {
   border: 2px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   background-color: var(--Neutral-10);
-  margin-left: auto; /* Pushes it to the right */
 }
 
 
