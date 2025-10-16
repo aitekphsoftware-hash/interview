@@ -22,6 +22,7 @@ const StartForm: React.FC<StartFormProps> = ({ onSubmit }) => {
             fullName: '',
             email: '',
             phone: '',
+            salaryExpectations: '',
             jobExperience: '',
           };
     } catch (error) {
@@ -30,6 +31,7 @@ const StartForm: React.FC<StartFormProps> = ({ onSubmit }) => {
         fullName: '',
         email: '',
         phone: '',
+        salaryExpectations: '',
         jobExperience: '',
       };
     }
@@ -37,8 +39,8 @@ const StartForm: React.FC<StartFormProps> = ({ onSubmit }) => {
   const [isFormValid, setIsFormValid] = useState(false);
 
   useEffect(() => {
-    const { fullName, email, phone, jobExperience } = formData;
-    setIsFormValid(!!(fullName && email && phone && jobExperience));
+    const { fullName, email, phone, jobExperience, salaryExpectations } = formData;
+    setIsFormValid(!!(fullName && email && phone && jobExperience && salaryExpectations));
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
   }, [formData]);
 
@@ -52,6 +54,7 @@ const StartForm: React.FC<StartFormProps> = ({ onSubmit }) => {
       fullName: '',
       email: '',
       phone: '',
+      salaryExpectations: '',
       jobExperience: '',
     });
     localStorage.removeItem(LOCAL_STORAGE_KEY);
@@ -106,6 +109,19 @@ const StartForm: React.FC<StartFormProps> = ({ onSubmit }) => {
             onChange={handleChange}
             required
             placeholder="e.g., (555) 123-4567"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="salaryExpectations">Salary Expectations (Annual)</label>
+          <input
+            type="text"
+            id="salaryExpectations"
+            name="salaryExpectations"
+            value={formData.salaryExpectations}
+            onChange={handleChange}
+            required
+            placeholder="e.g., €60,000"
           />
         </div>
 

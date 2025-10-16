@@ -1,3 +1,7 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+*/
 body {
   margin: 0;
   font-family:
@@ -221,7 +225,6 @@ button .icon {
   font-size: 18px;
 }
 
-
 /* Overlays */
 .top-controls {
   position: absolute;
@@ -258,7 +261,7 @@ button .icon {
   font-size: 13px;
   font-weight: 500;
   color: white;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .interviewer-info {
@@ -313,7 +316,6 @@ button .icon {
   justify-content: space-around;
   align-items: center;
   padding: 12px;
-  padding-bottom: 42px;
   gap: 8px;
   width: calc(100% - 48px);
   max-width: 400px;
@@ -330,7 +332,7 @@ button .icon {
   transition: background-color 0.2s;
 }
 .bottom-action-button:hover:not(:disabled) {
-    background-color: var(--Neutral-30);
+  background-color: var(--Neutral-30);
 }
 
 .bottom-action-button .material-symbols-outlined {
@@ -390,7 +392,7 @@ button .icon {
   position: fixed;
   top: 0;
   right: 0;
-  width: 380px;
+  width: 420px;
   max-width: 100%;
   height: 100vh;
   background: var(--gray-900);
@@ -410,7 +412,7 @@ button .icon {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--gray-800);
   flex-shrink: 0;
 }
@@ -421,6 +423,39 @@ button .icon {
 
 .sidebar-header .close-button {
   font-size: 24px;
+}
+
+.sidebar-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--gray-800);
+  flex-shrink: 0;
+}
+.sidebar-tab-button {
+  flex: 1;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-300);
+  position: relative;
+  text-align: center;
+  justify-content: center;
+}
+.sidebar-tab-button.active {
+  color: var(--accent-blue-active);
+}
+.sidebar-tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--accent-blue-active);
+}
+.sidebar-tab-button .dev-lock {
+  font-size: 14px;
+  margin-left: 6px;
+  vertical-align: middle;
 }
 
 .sidebar-content {
@@ -468,6 +503,7 @@ button .icon {
   color: var(--gray-300);
 }
 
+.sidebar-content input,
 .sidebar-content textarea,
 .sidebar-content select {
   border: 1px solid var(--gray-700);
@@ -479,8 +515,14 @@ button .icon {
   transition:
     border-color 0.2s,
     box-shadow 0.2s;
+  width: 100%;
+}
+.sidebar-content textarea {
+  min-height: 80px;
+  resize: vertical;
 }
 
+.sidebar-content input:focus,
 .sidebar-content textarea:focus,
 .sidebar-content select:focus {
   outline: none;
@@ -595,7 +637,7 @@ button .icon {
 .tool-actions button .icon {
   font-size: 16px;
 }
-.add-tool-button {
+.add-tool-button, .add-entry-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -610,14 +652,71 @@ button .icon {
   font-weight: 500;
   transition: background-color 0.2s;
 }
-.add-tool-button:hover {
+.add-tool-button:hover, .add-entry-button:hover {
   background-color: var(--gray-800);
 }
-.add-tool-button:disabled {
+.add-tool-button:disabled, .add-entry-button:disabled {
   color: var(--gray-500);
   background-color: transparent;
   cursor: not-allowed;
 }
+.resume-entry-card {
+  background-color: var(--gray-1000);
+  border: 1px solid var(--gray-800);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.resume-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.resume-entry-header p {
+  font-weight: bold;
+  font-size: 14px;
+}
+.remove-entry-button {
+  color: var(--Red-400);
+}
+.image-uploader-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.image-uploader-preview {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-700);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.image-uploader-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.image-uploader-label span {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+.image-uploader-button {
+  font-size: 14px;
+  color: var(--accent-blue-active);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
+.image-uploader-button:hover {
+  text-decoration: underline;
+}
+#hr-image-upload {
+  display: none;
+}
+
 
 /* Error Screen */
 .error-screen {
@@ -796,6 +895,8 @@ button .icon {
   justify-content: center;
   align-items: center;
   background-color: var(--Neutral-5);
+  overflow-y: auto;
+  padding: 20px;
 }
 
 .start-form {
@@ -879,15 +980,14 @@ button .icon {
 }
 
 .start-form button.clear-button {
-    background-color: var(--Neutral-20);
-    color: var(--Neutral-80);
-    flex-shrink: 1;
-    width: auto;
+  background-color: var(--Neutral-20);
+  color: var(--Neutral-80);
+  flex-shrink: 1;
+  width: auto;
 }
 .start-form button.clear-button:hover:not(:disabled) {
-    background-color: var(--Neutral-30);
+  background-color: var(--Neutral-30);
 }
-
 
 /* Countdown Styles */
 .countdown-overlay {
@@ -932,7 +1032,6 @@ button .icon {
   }
 }
 
-
 /* Explore Modal */
 .explore-modal-header {
   text-align: center;
@@ -975,7 +1074,8 @@ button .icon {
   flex-grow: 1;
   padding-right: 10px; /* space for scrollbar */
 }
-.job-listings, .applicant-listings {
+.job-listings,
+.applicant-listings {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1000,6 +1100,19 @@ button .icon {
   color: var(--Neutral-60);
   margin-bottom: 12px;
 }
+.job-details {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.job-detail-item {
+  font-size: 12px;
+  color: var(--Neutral-80);
+  background-color: var(--Neutral-15);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
 .job-description {
   font-size: 14px;
   color: var(--Neutral-80);
@@ -1047,10 +1160,9 @@ button .icon {
 .pick-button:hover {
   background-color: var(--Blue-400);
 }
-.pick-button[title="Under Development"] {
+.pick-button[title='Under Development'] {
   cursor: help;
 }
-
 
 /* Transcript View */
 .transcript-overlay {
@@ -1106,7 +1218,10 @@ button .icon {
   margin-bottom: 4px;
   display: block;
 }
-.turn-text strong, .turn-text b { font-weight: bold; }
+.turn-text strong,
+.turn-text b {
+  font-weight: bold;
+}
 .turn-text code {
   font-family: 'Roboto Mono', monospace;
   background-color: var(--Neutral-10);
@@ -1115,11 +1230,11 @@ button .icon {
   font-size: 0.9em;
 }
 .turn-text pre {
-    background-color: var(--Neutral-10);
-    padding: 10px;
-    border-radius: 8px;
-    white-space: pre-wrap;
-    word-break: break-all;
+  background-color: var(--Neutral-10);
+  padding: 10px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 /* User turn */
@@ -1159,8 +1274,11 @@ button .icon {
   text-align: center;
   padding: 4px 0;
 }
-.turn-system .turn-bubble code, .turn-system .turn-bubble pre {
-    text-align: left;
-    background-color: var(--Neutral-15);
+.turn-system .turn-bubble code,
+.turn-system .turn-bubble pre {
+  text-align: left;
+  background-color: var(--Neutral-15);
 }
-.turn-system .turn-role { display: none; }
+.turn-system .turn-role {
+  display: none;
+}

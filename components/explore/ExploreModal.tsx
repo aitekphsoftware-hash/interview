@@ -47,6 +47,10 @@ const ExploreModal: React.FC = () => {
                   <h3 className="job-title">{job.title}</h3>
                   <p className="job-company">{job.company}</p>
                   <p className="job-location">{job.location}</p>
+                  <div className="job-details">
+                    <span className="job-detail-item">{job.type}</span>
+                    <span className="job-detail-item">{job.industry}</span>
+                  </div>
                   <p className="job-description">{job.description}</p>
                 </div>
               ))}

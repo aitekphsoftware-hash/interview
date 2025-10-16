@@ -47,7 +47,7 @@ type AppState = 'form' | 'countdown' | 'interview';
  * Manages video streaming state and provides controls for webcam/screen capture.
  */
 function App() {
-  const { toggleSidebar } = useUI();
+  const { toggleDevMode } = useUI();
   const [appState, setAppState] = useState<AppState>('form');
   const [shouldConnect, setShouldConnect] = useState(false);
 
@@ -64,7 +64,7 @@ function App() {
         keySequence = keySequence.slice(-secretCode.length);
       }
       if (keySequence === secretCode) {
-        toggleSidebar();
+        toggleDevMode();
         keySequence = ''; // Reset after activation
       }
     };
@@ -74,7 +74,7 @@ function App() {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [toggleSidebar]);
+  }, [toggleDevMode]);
 
   useEffect(() => {
     if (shouldConnect && !connected) {
@@ -90,7 +90,7 @@ function App() {
   const { isCameraOn } = useMedia.getState();
 
   const handleFormSubmit = (data: Record<string, string>) => {
-    setSystemPromptWithData(data, isCameraOn); // Pass initial camera state
+    setSystemPromptWithData(data, isCameraOn); // Pass initial form data & camera state
     setAppState('countdown');
   };
 
