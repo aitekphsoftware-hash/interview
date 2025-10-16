@@ -190,12 +190,37 @@ button .icon {
   top: 0;
   left: 0;
   background-color: var(--Neutral-10);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.interviewer-view {
+.video-call-container video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform: scaleX(-1); /* Mirror self-view */
 }
+.camera-off-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--Neutral-10);
+  color: var(--Neutral-60);
+}
+.camera-off-overlay .material-symbols-outlined {
+  font-size: 64px;
+}
+.camera-off-overlay p {
+  font-size: 18px;
+}
+
 
 /* Overlays */
 .top-controls {
@@ -209,23 +234,7 @@ button .icon {
   z-index: 10;
 }
 
-.back-button {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(5px);
-  border-radius: 12px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.back-button .material-symbols-outlined {
-  font-size: 28px;
-  color: #ff4545;
-}
-
-.self-view-container {
+.interviewer-pip-container {
   position: relative;
   width: 100px;
   height: 150px;
@@ -236,36 +245,20 @@ button .icon {
   background-color: var(--Neutral-10);
 }
 
-.self-view-container video {
+.interviewer-pip-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scaleX(-1); /* Mirror view */
 }
 
-.resize-button {
+.interviewer-pip-name {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  background: transparent;
-  color: #ff4545;
-}
-.resize-button .material-symbols-outlined {
-  font-size: 20px;
-}
-.camera-off-overlay-small {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.camera-off-overlay-small .material-symbols-outlined {
-  font-size: 32px;
-  color: var(--gray-500);
+  bottom: 4px;
+  left: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
 .interviewer-info {
@@ -309,8 +302,8 @@ button .icon {
 .control-tray {
   position: absolute;
   bottom: max(24px, env(safe-area-inset-bottom));
-  left: 24px;
-  right: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 100;
   background: rgba(32, 33, 36, 0.8);
   backdrop-filter: blur(8px);
@@ -319,12 +312,27 @@ button .icon {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 12px 12px 42px;
+  padding: 12px;
+  padding-bottom: 42px;
+  gap: 8px;
+  width: calc(100% - 48px);
+  max-width: 400px;
 }
 .bottom-action-button {
   background: none;
   color: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s;
 }
+.bottom-action-button:hover:not(:disabled) {
+    background-color: var(--Neutral-30);
+}
+
 .bottom-action-button .material-symbols-outlined {
   font-size: 28px;
 }
@@ -659,9 +667,9 @@ button .icon {
   padding: 24px;
   position: relative;
   width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow: auto;
+  max-width: 600px;
+  height: 90vh;
+  overflow: hidden;
   margin: 20px;
   display: flex;
   flex-direction: column;
@@ -843,6 +851,12 @@ button .icon {
   box-shadow: 0 0 0 2px rgba(31, 148, 255, 0.2);
 }
 
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
 .start-form button {
   width: 100%;
   padding: 15px;
@@ -863,6 +877,17 @@ button .icon {
   background-color: var(--Neutral-30);
   color: var(--Neutral-60);
 }
+
+.start-form button.clear-button {
+    background-color: var(--Neutral-20);
+    color: var(--Neutral-80);
+    flex-shrink: 1;
+    width: auto;
+}
+.start-form button.clear-button:hover:not(:disabled) {
+    background-color: var(--Neutral-30);
+}
+
 
 /* Countdown Styles */
 .countdown-overlay {
@@ -906,3 +931,236 @@ button .icon {
     opacity: 1;
   }
 }
+
+
+/* Explore Modal */
+.explore-modal-header {
+  text-align: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--Neutral-30);
+}
+.explore-modal-header h2 {
+  font-size: 24px;
+  color: var(--accent-blue-headers);
+  margin-bottom: 8px;
+}
+.explore-modal-header p {
+  color: var(--Neutral-60);
+}
+.explore-modal-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--Neutral-30);
+  margin-bottom: 20px;
+}
+.tab-button {
+  padding: 15px 20px;
+  color: var(--Neutral-60);
+  position: relative;
+  font-weight: 500;
+}
+.tab-button.active {
+  color: var(--accent-blue-active);
+}
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--accent-blue-active);
+}
+.explore-modal-content {
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-right: 10px; /* space for scrollbar */
+}
+.job-listings, .applicant-listings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.job-card {
+  background-color: var(--Neutral-10);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--Neutral-20);
+}
+.job-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--text);
+}
+.job-company {
+  color: var(--accent-blue);
+  margin-bottom: 4px;
+}
+.job-location {
+  font-size: 14px;
+  color: var(--Neutral-60);
+  margin-bottom: 12px;
+}
+.job-description {
+  font-size: 14px;
+  color: var(--Neutral-80);
+  line-height: 1.5;
+}
+
+.applicant-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--Neutral-10);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--Neutral-20);
+}
+.applicant-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.applicant-info {
+  flex-grow: 1;
+}
+.applicant-name {
+  font-size: 18px;
+  font-weight: bold;
+}
+.applicant-role {
+  color: var(--accent-blue);
+  margin-bottom: 4px;
+}
+.applicant-experience {
+  font-size: 14px;
+  color: var(--Neutral-60);
+}
+.pick-button {
+  background-color: var(--Blue-500);
+  color: var(--Neutral-5);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+.pick-button:hover {
+  background-color: var(--Blue-400);
+}
+.pick-button[title="Under Development"] {
+  cursor: help;
+}
+
+
+/* Transcript View */
+.transcript-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  max-width: 90%;
+  height: 100vh;
+  background: rgba(28, 31, 33, 0.95);
+  backdrop-filter: blur(10px);
+  border-left: 1px solid var(--Neutral-30);
+  z-index: 999;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+.transcript-overlay.open {
+  transform: translateX(0);
+}
+.transcript-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid var(--Neutral-30);
+  flex-shrink: 0;
+}
+.transcript-header h3 {
+  font-size: 20px;
+}
+.transcript-content {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.turn {
+  display: flex;
+}
+.turn-bubble {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  line-height: 1.5;
+}
+.turn-role {
+  font-weight: bold;
+  font-size: 13px;
+  margin-bottom: 4px;
+  display: block;
+}
+.turn-text strong, .turn-text b { font-weight: bold; }
+.turn-text code {
+  font-family: 'Roboto Mono', monospace;
+  background-color: var(--Neutral-10);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+.turn-text pre {
+    background-color: var(--Neutral-10);
+    padding: 10px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* User turn */
+.turn-user {
+  justify-content: flex-end;
+}
+.turn-user .turn-bubble {
+  background-color: var(--Blue-800);
+  color: var(--text);
+  border-bottom-right-radius: 4px;
+}
+.turn-user .turn-role {
+  color: var(--Blue-400);
+}
+
+/* Agent turn */
+.turn-agent {
+  justify-content: flex-start;
+}
+.turn-agent .turn-bubble {
+  background-color: var(--Neutral-20);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+}
+.turn-agent .turn-role {
+  color: var(--accent-blue);
+}
+
+/* System turn */
+.turn-system {
+  justify-content: center;
+  font-size: 13px;
+}
+.turn-system .turn-bubble {
+  background-color: transparent;
+  color: var(--Neutral-60);
+  text-align: center;
+  padding: 4px 0;
+}
+.turn-system .turn-bubble code, .turn-system .turn-bubble pre {
+    text-align: left;
+    background-color: var(--Neutral-15);
+}
+.turn-system .turn-role { display: none; }

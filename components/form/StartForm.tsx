@@ -10,24 +10,52 @@ interface StartFormProps {
   onSubmit: (data: Record<string, string>) => void;
 }
 
+const LOCAL_STORAGE_KEY = 'interview-form-data';
+
 const StartForm: React.FC<StartFormProps> = ({ onSubmit }) => {
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    jobExperience: '',
+  const [formData, setFormData] = useState(() => {
+    try {
+      const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+      return savedData
+        ? JSON.parse(savedData)
+        : {
+            fullName: '',
+            email: '',
+            phone: '',
+            jobExperience: '',
+          };
+    } catch (error) {
+      console.error('Failed to parse form data from localStorage', error);
+      return {
+        fullName: '',
+        email: '',
+        phone: '',
+        jobExperience: '',
+      };
+    }
   });
   const [isFormValid, setIsFormValid] = useState(false);
 
   useEffect(() => {
     const { fullName, email, phone, jobExperience } = formData;
     setIsFormValid(!!(fullName && email && phone && jobExperience));
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
   }, [formData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  const handleClear = () => {
+    setFormData({
+      fullName: '',
+      email: '',
+      phone: '',
+      jobExperience: '',
+    });
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,9 +121,14 @@ const StartForm: React.FC<StartFormProps> = ({ onSubmit }) => {
           />
         </div>
         
-        <button type="submit" disabled={!isFormValid}>
-          Start Interview
-        </button>
+        <div className="form-actions">
+           <button type="button" className="clear-button" onClick={handleClear}>
+            Clear
+          </button>
+          <button type="submit" disabled={!isFormValid}>
+            Start Interview
+          </button>
+        </div>
       </form>
     </div>
   );

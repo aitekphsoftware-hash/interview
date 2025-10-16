@@ -26,8 +26,14 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import StartForm from './components/form/StartForm';
 import Countdown from './components/countdown/Countdown';
+import ExploreModal from './components/explore/ExploreModal';
+import TranscriptView from './components/transcript/TranscriptView';
 import { LiveAPIProvider, useLiveAPIContext } from './contexts/LiveAPIContext';
 import { useMedia, useSettings, useUI } from './lib/state';
+import { marked } from 'marked';
+
+// Required for transcript markdown parsing
+import('https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js');
 
 const API_KEY = process.env.API_KEY as string;
 if (typeof API_KEY !== 'string') {
@@ -43,8 +49,9 @@ type AppState = 'form' | 'countdown' | 'interview';
 function App() {
   const { toggleSidebar } = useUI();
   const [appState, setAppState] = useState<AppState>('form');
+  const [shouldConnect, setShouldConnect] = useState(false);
 
-  const { connect } = useLiveAPIContext();
+  const { connect, connected } = useLiveAPIContext();
   const { setCamera, setMic } = useMedia();
 
   useEffect(() => {
@@ -69,6 +76,16 @@ function App() {
     };
   }, [toggleSidebar]);
 
+  useEffect(() => {
+    if (shouldConnect && !connected) {
+      connect();
+      setMic(true);
+      // We ask for camera to be true, the AI will prompt if it's not enabled.
+      setCamera(true);
+      setShouldConnect(false); // Reset trigger
+    }
+  }, [shouldConnect, connected, connect, setMic, setCamera]);
+
   const { setSystemPromptWithData } = useSettings.getState();
   const { isCameraOn } = useMedia.getState();
 
@@ -79,32 +96,28 @@ function App() {
 
   const handleCountdownFinish = () => {
     setAppState('interview');
-    // Connect automatically when the interview screen is shown
-    connect();
-    setMic(true);
-    // We ask for camera to be true, the AI will prompt if it's not enabled.
-    setCamera(true);
+    // Set the trigger to connect. The useEffect will handle the connection
+    // after the StreamingConsole component has mounted and set its config.
+    setShouldConnect(true);
   };
 
   return (
     <div className="App">
-      <LiveAPIProvider apiKey={API_KEY}>
-        <ErrorScreen />
-        {appState === 'form' && <StartForm onSubmit={handleFormSubmit} />}
-        {appState === 'countdown' && (
-          <Countdown onFinish={handleCountdownFinish} />
-        )}
-        {appState === 'interview' && (
-          <>
-            <Sidebar />
-            <main className="main-app-area">
-              <StreamingConsole />
-              <Header />
-              <ControlTray />
-            </main>
-          </>
-        )}
-      </LiveAPIProvider>
+      <ErrorScreen />
+      {appState === 'form' && <StartForm onSubmit={handleFormSubmit} />}
+      {appState === 'countdown' && <Countdown onFinish={handleCountdownFinish} />}
+      {appState === 'interview' && (
+        <>
+          <Sidebar />
+          <ExploreModal />
+          <TranscriptView />
+          <main className="main-app-area">
+            <StreamingConsole />
+            <Header />
+            <ControlTray />
+          </main>
+        </>
+      )}
     </div>
   );
 }

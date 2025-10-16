@@ -21,13 +21,15 @@
 import cn from 'classnames';
 import { memo, useEffect, useState } from 'react';
 import { AudioRecorder } from '../../../lib/audio-recorder';
-import { useMedia } from '@/lib/state';
+import { useMedia, useUI } from '@/lib/state';
 import { useLiveAPIContext } from '../../../contexts/LiveAPIContext';
 
 function ControlTray() {
   const [audioRecorder] = useState(() => new AudioRecorder());
   const { client, connected, connect, disconnect } = useLiveAPIContext();
   const { isCameraOn, isMicOn, toggleCamera, setCamera, setMic } = useMedia();
+  const { toggleExploreModal, toggleTranscript, toggleSidebar } = useUI();
+
 
   useEffect(() => {
     if (!connected) {
@@ -81,9 +83,6 @@ function ControlTray() {
   return (
     <>
       <div className="side-controls-container">
-        <button className="action-button">
-          <span className="material-symbols-outlined">expand_less</span>
-        </button>
         <button
           className="action-button"
           onClick={handleCameraToggle}
@@ -113,11 +112,8 @@ function ControlTray() {
       </div>
 
       <section className="control-tray">
-        <button className="bottom-action-button">
-          <span className="material-symbols-outlined">ios_share</span>
-        </button>
-        <button className="bottom-action-button">
-          <span className="material-symbols-outlined">flip_camera_ios</span>
+        <button className="bottom-action-button" title="Explore Opportunities" onClick={toggleExploreModal}>
+          <span className="material-symbols-outlined">explore</span>
         </button>
         <button
           className="end-call-button"
@@ -128,10 +124,10 @@ function ControlTray() {
             {connected ? 'call_end' : 'play_arrow'}
           </span>
         </button>
-        <button className="bottom-action-button">
+        <button className="bottom-action-button" title="Show Transcript" onClick={toggleTranscript}>
           <span className="material-symbols-outlined">chat_bubble</span>
         </button>
-        <button className="bottom-action-button">
+        <button className="bottom-action-button" title="Settings" onClick={toggleSidebar}>
           <span className="material-symbols-outlined">more_vert</span>
         </button>
       </section>

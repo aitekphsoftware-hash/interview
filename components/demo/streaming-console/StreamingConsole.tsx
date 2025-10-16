@@ -7,15 +7,20 @@ import { Modality } from '@google/genai';
 import { useLiveAPIContext } from '../../../contexts/LiveAPIContext';
 import { useSettings, useLogStore, useTools, useMedia } from '@/lib/state';
 import { blobToBase64 } from '@/lib/utils';
+import { useCamera } from '@/hooks/media/useCamera';
 
 export default function StreamingConsole() {
   const { client, connected, setConfig } = useLiveAPIContext();
   const { systemPrompt, voice } = useSettings();
   const { tools } = useTools();
   const { isCameraOn } = useMedia();
+  const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameIntervalRef = useRef<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
+
+  // Hook to manage camera stream
+  useCamera(videoRef, isCameraOn);
 
   // Effect for the real-time call timer
   useEffect(() => {
@@ -46,15 +51,10 @@ export default function StreamingConsole() {
     return `${minutes}:${seconds}`;
   };
 
-  // This effect is for sending video frames for AI analysis, it still needs the video element from the Header.
-  // A cleaner approach would be to pass the videoRef down or use a context.
-  // For now, we'll find it in the DOM, which is not ideal but works for this structure.
+  // Effect for sending video frames
   useEffect(() => {
-    const videoEl = document.querySelector(
-      '.self-view-container video',
-    ) as HTMLVideoElement;
-
-    if (connected && isCameraOn && videoEl && canvasRef.current) {
+    if (connected && isCameraOn && videoRef.current && canvasRef.current) {
+      const videoEl = videoRef.current;
       const canvasEl = canvasRef.current;
       const ctx = canvasEl.getContext('2d');
 
@@ -62,7 +62,6 @@ export default function StreamingConsole() {
 
       frameIntervalRef.current = window.setInterval(() => {
         if (videoEl.readyState < 2) {
-          // Wait until video is ready
           return;
         }
         canvasEl.width = videoEl.videoWidth;
@@ -160,11 +159,13 @@ export default function StreamingConsole() {
   return (
     <div className="video-call-container">
       <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
-      <img
-        src="https://botsrhere.online/assets/interviewer.png"
-        alt="Interviewer"
-        className="interviewer-view"
-      />
+      <video ref={videoRef} muted autoPlay playsInline></video>
+      {!isCameraOn && (
+        <div className="camera-off-overlay">
+          <span className="material-symbols-outlined">videocam_off</span>
+          <p>Your camera is off</p>
+        </div>
+      )}
       <div className="interviewer-info">
         <div className="info-text">
           <p className="interviewer-title">AI Interview Specialist</p>
